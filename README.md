@@ -1,4 +1,4 @@
-# benten
+# benten (WIP)
 A flexible input method engine made and tested only for unix systems, which allows the easy configuration of mixed-script writing systems such as Kana/Kanji & Hangul/Hanja.
 
 ## motivation
