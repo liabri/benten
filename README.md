@@ -2,7 +2,7 @@
 A flexible input method engine made and tested only for unix systems, which allows the easy configuration of mixed-script writing systems such as Kana/Kanji & Hangul/Hanja.
 
 ## motivation
-As I started to learn Japanese, I wanted a way to input without having to rely on candidate windows and such, which led me to find Cangjie and other shaped based input method for chinese characters. This idea was to utilise a kana layout with cangjie hidden away by a key press, this could've easily been done in Rime or just using a keyboard remapper, but I thought it'd be a fun project and would satisfy my desire of not jerry rigging appplications together. This has led to the birth of `benten`, a decently opinionated but flexible input method engine.
+As I started to learn Japanese, I wanted a way to input without having to rely on candidate windows and such, which led me to find Cangjie and other shaped based input method for chinese characters. This idea was to utilise a kana layout with cangjie hidden away behind a single key press, this could've easily been done in Rime or just using a keyboard remapper, but I thought it'd be a fun project and would satisfy my desire of not jerry rigging appplications together. This has led to the birth of `benten`, a decently opinionated but flexible input method engine.
 
 ## why the name `benten` ?
 Named after the Japanese Buddhist Goddess "Benzaiten" (弁才天) whom stands for all things that flow (as per Wikipedia), which hopefully represents this project well :).  
