@@ -1,0 +1,17 @@
+[package]
+name = "libbenten"
+version = "0.1.0"
+edition = "2018"
+
+[lib]
+name = "benten"
+path = "src/lib.rs"
+crate-type = ["rlib"]
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_yaml = "0.8.21"
+serde_with = "1.11.0"
+thiserror = "1.0.30"
+xdg = "2.4.0"
+#https://crates.io/crates/ahash
