@@ -1,0 +1,9 @@
+[workspace]
+members = [
+    "src/benten",
+    "src/libbenten",
+    "src/benten-wayland"
+]
+
+[profile.release]
+codegen-units = 1
