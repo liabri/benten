@@ -1,21 +1,20 @@
-use benten::{ BentenEngine, BentenResponse, BentenConfig };
+mod context;
+use context::BentenContext;
+
 use mio::{unix::SourceFd, Events as MioEvents, Interest, Poll, Token};
 use mio_timerfd::{ClockId, TimerFd};
-use std::time::{Duration, Instant};
 
-use wayland_client::{ event_enum, DispatchData, Display, Filter, GlobalManager, Main };
-use wayland_client::protocol::{ wl_keyboard::KeyState, wl_seat::WlSeat };
+use wayland_client::{ event_enum, Display, Filter, GlobalManager };
+use wayland_client::protocol::wl_seat::WlSeat;
 
 use wayland_protocols::misc::zwp_input_method_v2::client::{
-    zwp_input_method_keyboard_grab_v2::{ Event as KeyEvent, ZwpInputMethodKeyboardGrabV2 },
+    zwp_input_method_v2::ZwpInputMethodV2,
     zwp_input_method_manager_v2::ZwpInputMethodManagerV2,
-    zwp_input_method_v2::{ Event as ImEvent, ZwpInputMethodV2 },
+    zwp_input_method_keyboard_grab_v2::ZwpInputMethodKeyboardGrabV2,
 };
 
-use zwp_virtual_keyboard::virtual_keyboard_unstable_v1::{
-    zwp_virtual_keyboard_manager_v1::ZwpVirtualKeyboardManagerV1,
-    zwp_virtual_keyboard_v1::ZwpVirtualKeyboardV1,
-};
+
+use zwp_virtual_keyboard::virtual_keyboard_unstable_v1::zwp_virtual_keyboard_manager_v1::ZwpVirtualKeyboardManagerV1;
 
 event_enum! {
     Events |
@@ -39,11 +38,10 @@ pub fn init() {
         let ctx = BentenContext::new_data(&mut data);
         match ev {
             Events::Key { event, .. } => {
-            	println!("key event");
                 ctx.handle_key_ev(event);
-            }
+            },
+
             Events::Im { event, .. } => {
-            	println!("im event");
                 ctx.handle_im_ev(event);
             }
         }
@@ -67,6 +65,7 @@ pub fn init() {
         Interest::READABLE | Interest::WRITABLE,
     ).expect("Register wayland socket to the epoll()");
 
+    // Required for hold event of engine values
     const POLL_TIMER: Token = Token(1);
     registry.register(
     	&mut timer, 
@@ -75,7 +74,7 @@ pub fn init() {
     ).expect("Register timer to the epoll()");
 
     // Initialize context
-    let mut ctx = BentenContext::new(vk, im, grab, timer);
+    let mut ctx = BentenContext::new(vk, im, timer);
     event_queue.sync_roundtrip(&mut ctx, |_, _, _| ()).unwrap();
     log::info!("Server successfully initialised !");
 
@@ -132,252 +131,5 @@ pub fn init() {
     match stop_reason {
         Ok(()) => log::info!("Server closed gracefully"),
         Err(e) => log::error!("Server aborted: {}", e),
-    }
-}
-
-struct BentenContext {
-    engine: BentenEngine,
-    current_state: InputMethodState,
-    pending_state: InputMethodState,
-    vk: Main<ZwpVirtualKeyboardV1>,
-    im: Main<ZwpInputMethodV2>,
-    grab: Main<ZwpInputMethodKeyboardGrabV2>,
-    grab_activate: bool,
-    keymap_init: bool,
-    serial: u32,
-    timer: TimerFd,
-    repeat_state: Option<(RepeatInfo, PressState)>,
-}
-
-#[derive(PartialEq)]
-pub enum InputMethodState {
-    Active,
-    Inactive,
-}
-
-impl Default for InputMethodState {
-    fn default() -> Self {
-        InputMethodState::Inactive
-    }
-}
-
-#[derive(Clone, Copy)]
-struct RepeatInfo {
-    rate: i32,
-    delay: i32,
-}
-
-#[derive(Clone, Copy)]
-enum PressState {
-    NotPressing,
-    Pressing {
-        pressed_at: Instant,
-        is_repeating: bool,
-        key: u32,
-        wayland_time: u32,
-    },
-}
-
-impl PressState {
-    fn is_pressing(&self, query_key: u32) -> bool {
-        if let PressState::Pressing { key, .. } = self {
-            *key == query_key
-        } else {
-            false
-        }
-    }
-}
-
-impl BentenContext {
-    pub fn new(vk: Main<ZwpVirtualKeyboardV1>, im: Main<ZwpInputMethodV2>, grab: Main<ZwpInputMethodKeyboardGrabV2>, timer: TimerFd) -> Self { 
-        Self {
-            engine: BentenEngine::new(BentenConfig { id: "japanese".to_string() }),
-            current_state: InputMethodState::Inactive,
-            pending_state: InputMethodState::Inactive,
-            serial: 0,
-            grab_activate: false,
-            keymap_init: false,
-            vk,
-            im,
-            grab,
-            timer,
-            repeat_state: None,
-        }
-    }
-
-    pub fn new_data<'a>(data: &'a mut DispatchData) -> &'a mut Self {
-        data.get::<Self>().unwrap()
-    }
-
-    pub fn handle_im_ev(&mut self, ev: ImEvent) {
-        match ev {
-            ImEvent::Activate => {
-                self.pending_state = InputMethodState::Active
-            },
-
-            ImEvent::Deactivate => {
-                self.pending_state = InputMethodState::Inactive;
-            },
-
-            ImEvent::Unavailable => {
-                log::error!("input method unavailable, is another server already running ?");
-                panic!("unavailable")
-            },
-
-            ImEvent::Done => {
-                if self.current_state==InputMethodState::Inactive 
-                  && self.pending_state==InputMethodState::Active { 
-                    self.grab_activate = true;
-                } 
-
-                else if self.current_state==InputMethodState::Active 
-               	  && self.pending_state==InputMethodState::Inactive {
-                    self.grab_activate = false;
-
-                    // Focus lost, reset states
-                    self.engine.reset();
-
-                    // Input deactivated, stop repeating
-                    self.timer.disarm().unwrap();
-                    if let Some((_, ref mut press_state)) = self.repeat_state {
-                        *press_state = PressState::NotPressing
-                    }
-                }
-
-                self.current_state = std::mem::take(&mut self.pending_state);
-            },
-
-            _ => {}
-        }
-    }
-
-    pub fn handle_key_ev(&mut self, ev: KeyEvent) {
-        match ev {
-            KeyEvent::Keymap { fd, format, size } => {
-                if !self.keymap_init {
-                    self.vk.keymap(format as _, fd, size);
-                    self.keymap_init = true;
-                }
-
-                unsafe { libc::close(fd); }
-            },
-
-            KeyEvent::Key { state, key, time, .. } => {
-            	if self.grab_activate {
-	            	match state {
-	            		KeyState::Pressed => {
-					    	match self.engine.on_key_press((key + 8) as u16) {
-					    		BentenResponse::Empty => {},
-					    		BentenResponse::Commit(s) => { 
-					    			self.im.commit_string(s);
-					    			self.serial += 1;
-					    			self.im.set_preedit_string(String::new(), -1, -1);
-					    		},
-
-					    		BentenResponse::Suggest(s) => {
-					    			let len = s.len();
-        							self.im.set_preedit_string(s, 0, len as _);
-					    		},
-
-					    		BentenResponse::Null => {
-					    			self.vk.key(time, key, state as _);
-					    			return;
-					    		}
-					    	}
-
-					    	match self.repeat_state {
-                                Some((info, ref mut press_state)) if !press_state.is_pressing(key) => {
-                                    let duration = Duration::from_millis(info.delay as u64);
-                                    self.timer.set_timeout(&duration).unwrap();
-                                    *press_state = PressState::Pressing {
-                                        pressed_at: Instant::now(),
-                                        is_repeating: false,
-                                        key,
-                                        wayland_time: time,
-                                    };
-                                },
-
-                                _ => {}
-                            }
-	            		},
-
-	            		KeyState::Released => {
-	            			let _rep = self.engine.on_key_release((key + 8) as u16);
-
-	            			// If user released the last pressed key, clear the timer and state
-		                    if let Some((.., ref mut press_state)) = self.repeat_state {
-		                        if press_state.is_pressing(key) {
-		                            self.timer.disarm().unwrap();
-		                            *press_state = PressState::NotPressing;
-		                        }
-		                    }
-	            		},
-
-	            		_ => {}
-	            	}
-            	}
-
-            	self.vk.key(time, key, state as _);
-            },
-
-            KeyEvent::Modifiers { mods_depressed, mods_latched, mods_locked, group, .. } => {
-                //todo
-                self.vk.modifiers(mods_depressed, mods_latched, mods_locked, group);
-            },
-
-            KeyEvent::RepeatInfo { rate, delay } => {
-                self.repeat_state = if rate == 0 {
-                    // Zero rate means disabled repeat
-                    None
-                } else {
-                    let info = RepeatInfo { rate, delay };
-                    let press_state = self.repeat_state.map(|pair| pair.1);
-                    Some((info, press_state.unwrap_or(PressState::NotPressing)))
-                }
-            },
-
-            _ => {}
-        }
-    }
-
-    pub fn handle_timer_ev(&mut self) -> std::io::Result<()> {
-        // Read timer, this MUST be called or timer will be broken
-        let overrun_count = self.timer.read()?;
-        if overrun_count != 1 {
-            log::warn!("Some timer events were not properly handled!");
-        }
-
-        if let Some((
-            info,
-            PressState::Pressing {
-                pressed_at,
-                ref mut is_repeating,
-                key,
-                wayland_time,
-            },
-        )) = self.repeat_state {
-            if !*is_repeating {
-                // Start repeat
-                log::trace!("Start repeating {}", key);
-                let interval = &Duration::from_secs_f64(1.0 / info.rate as f64);
-                self.timer.set_timeout_interval(interval)?;
-                *is_repeating = true;
-            }
-
-            // Emit key repeat event
-            let ev = KeyEvent::Key {
-                serial: self.serial,
-                time: wayland_time + pressed_at.elapsed().as_millis() as u32,
-                key,
-                state: KeyState::Pressed,
-            };
-
-            self.serial += 1;
-            self.handle_key_ev(ev);
-        } else {
-            log::warn!("Received timer event when it has never received RepeatInfo.");
-        }
-
-        Ok(())
     }
 }
