@@ -17,9 +17,18 @@ pub struct BentenContext {
     vk: Main<ZwpVirtualKeyboardV1>,
     im: Main<ZwpInputMethodV2>,
     keymap_init: bool,
+    mod_state: bool,
     serial: u32,
     timer: TimerFd,
     repeat_state: Option<(RepeatInfo, PressState)>,
+}
+
+// Global modifier that should not be handled in the engine
+pub enum ModifierState {
+    CONTROL = 0x4,
+    SUPER = 0x40,
+    L_ALT = 0x8,
+    R_ALT = 0x80,
 }
 
 #[derive(PartialEq)]
@@ -62,6 +71,7 @@ impl BentenContext {
             current_state: InputMethodState::Inactive,
             serial: 0,
             keymap_init: false,
+            mod_state: true,
             vk,
             im,
             timer,
@@ -117,7 +127,7 @@ impl BentenContext {
             },
 
             KeyEvent::Key { state, key, time, .. } => {
-            	if self.current_state==InputMethodState::Active {
+            	if self.current_state==InputMethodState::Active && self.mod_state {
 	            	match state {
 	            		KeyState::Pressed => {
 					    	match self.engine.on_key_press((key + 8) as u16) {
@@ -159,7 +169,7 @@ impl BentenContext {
 
 	            		KeyState::Released => {
                             // If user released the last pressed key, clear the timer and state
-                            // self.engine.on_key_press((key + 8) as u16) //MODFIERS
+                            self.engine.on_key_release((key + 8) as u16);
                             if let Some((.., ref mut press_state)) = self.repeat_state {
                                 if press_state.is_pressing(key) {
                                     self.timer.disarm().unwrap();
@@ -172,10 +182,19 @@ impl BentenContext {
 
 	            		_ => {}
 	            	}
-            	}
+            	} else {
+                    self.vk.key(time, key, state as _);
+                }
             },
 
             KeyEvent::Modifiers { mods_depressed, mods_latched, mods_locked, group, .. } => {
+                self.mod_state = true;
+                if 0 != mods_depressed & (ModifierState::CONTROL as u32) {
+                    self.mod_state = false;
+                } else if 0 != mods_depressed & (ModifierState::SUPER as u32) {
+                    self.mod_state = false;
+                }
+
                 self.vk.modifiers(mods_depressed, mods_latched, mods_locked, group);
             },
 
