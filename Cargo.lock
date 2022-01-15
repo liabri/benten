@@ -21,7 +21,6 @@ dependencies = [
 name = "benten-wayland"
 version = "0.1.0"
 dependencies = [
- "bitflags",
  "libbenten",
  "libc",
  "log",

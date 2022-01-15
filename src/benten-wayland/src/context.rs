@@ -23,12 +23,11 @@ pub struct BentenContext {
     repeat_state: Option<(RepeatInfo, PressState)>,
 }
 
-// Global modifier that should not be handled in the engine
+// Global modifiers that should not be handled in the engine
 pub enum ModifierState {
     CONTROL = 0x4,
     SUPER = 0x40,
-    L_ALT = 0x8,
-    R_ALT = 0x80,
+    LALT = 0x8,
 }
 
 #[derive(PartialEq)]
@@ -192,6 +191,8 @@ impl BentenContext {
                 if 0 != mods_depressed & (ModifierState::CONTROL as u32) {
                     self.mod_state = false;
                 } else if 0 != mods_depressed & (ModifierState::SUPER as u32) {
+                    self.mod_state = false;
+                } else if 0 != mods_depressed & (ModifierState::LALT as u32) {
                     self.mod_state = false;
                 }
 
