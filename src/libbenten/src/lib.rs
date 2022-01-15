@@ -46,6 +46,7 @@ impl BentenEngine {
     }
 }
 
+#[derive(Debug)]
 pub enum BentenResponse {
     Commit(String),
     Suggest(String),
