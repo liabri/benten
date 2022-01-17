@@ -13,9 +13,9 @@ pub struct Mode {
 	#[serde(deserialize_with = "to_methods")]
 	pub methods: Vec<Box<dyn GenericMethodTrait>>,
 	pub bindings: Option<Vec<Binding>>,
-	#[serde(deserialize_with = "get_first_method")]
-	pub current_method: Box<dyn GenericMethodTrait>
 }
+
+pub struct MethodHandle(usize);
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -54,6 +54,7 @@ impl Mode {
 		})
 	}
 
+
 	pub fn parse(path: &Path) -> Result<Self, BentenError> {
 		let file = File::open(path)?;
     	let reader = BufReader::new(file);
@@ -63,10 +64,12 @@ impl Mode {
 
 impl From<Box<dyn GenericMethodTrait>> for Mode {
     fn from(method: Box<dyn GenericMethodTrait>) -> Self {
+    	let mut methods = Vec::new();
+    	methods.push(method);
         Mode {
-        	methods: Vec::with_capacity(0),
+        	methods,
         	bindings: None,
-        	current_method: method,
+        	// current_method: method,
         }
     }
 }
@@ -91,20 +94,4 @@ where D: Deserializer<'de> {
 	}
 
 	Ok(out)
-}
-
-pub fn get_first_method<'de, D>(deserializer: D) -> Result<Box<dyn GenericMethodTrait>, D::Error>
-where D: Deserializer<'de> {
-	//TEMPORARY
-	let base_dir = xdg::BaseDirectories::with_prefix("benten").unwrap().get_config_home();
-
- 	if let Ok(value) = String::deserialize(deserializer) {
- 		if let Ok(table) = TableMethod::new(&value, &base_dir) {
-			return Ok(Box::new(table));
-		} else if let Ok(layout) = LayoutMethod::new(&value, &base_dir) {
-			return Ok(Box::new(layout));
-		}	
- 	}
- 	
- 	Err(serde::de::Error::custom("Invalid method id"))
 }
