@@ -46,12 +46,12 @@ impl BentenEngine {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum BentenResponse {
     Commit(String),
     Suggest(String),
-    Null,
-    Empty,
+    Null, //NoChar
+    Empty, //Was found but didnt have anything to return, intentional (such as functions like HAN key)
 }
 
 #[derive(Error, Debug)]
@@ -60,4 +60,22 @@ pub enum BentenError {
     IoError(#[from] std::io::Error),
     #[error("serde_yaml error `{0}`")]
     SerdeYamlError(#[from] serde_yaml::Error),
+    #[error("method not found")]
+    MethodNotFound
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test() {
+        let mut engine = BentenEngine::new(BentenConfig { id: "japanese".to_string() });
+
+        assert_eq!(engine.on_key_press(45), BentenResponse::Commit(String::from("い")));
+        assert_eq!(engine.on_key_press(25), BentenResponse::Commit(String::from("く")));
+        assert_eq!(engine.on_key_press(47), BentenResponse::Empty);
+        assert_eq!(engine.on_key_press(18), BentenResponse::Commit(String::from("poop")));
+    }
 }
