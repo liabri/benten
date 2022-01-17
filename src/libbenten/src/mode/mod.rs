@@ -2,7 +2,7 @@ mod parser;
 pub use parser::*;
 
 use crate::methods::GenericMethodTrait;
-use crate::methods::layout::{ LayoutMethod, LayoutHelper, LayoutMethodTrait };
+use crate::methods::layout::{ LayoutMethod, LayoutMethodTrait };
 use crate::{ BentenResponse, BentenError };
 use std::path::Path;
 
@@ -37,13 +37,23 @@ impl ModeHouse {
 										if method.id()==m {
 											self.reset();
 											self.current_method = i;
-											return BentenResponse::Empty
+											return BentenResponse::Empty;
+										}
+									}                			
+						    	},
+
+						    	Function::CommitThenChangeMethodTo(m) => {
+									for (i, method) in self.mode.methods.iter().enumerate() {
+										if method.id()==m {
+											let v = self.mode.methods.get_mut(self.current_method).unwrap().on_key_press(key_code);
+											self.reset();
+											self.current_method = i;
+											return v;
 										}
 									}                			
 						    	}
-					    	}
 
-					    	return BentenResponse::Empty
+					    	}
 	                	}
 		            }
 				}
@@ -61,19 +71,6 @@ impl ModeHouse {
         self.mode.methods.get_mut(self.current_method).unwrap().reset();
     }
 
-	// pub fn execute_function(&mut self, function: &Function) {
-	// 	match function {
-	//         Function::ChangeMethodTo(m) => {
-	// 			for method in &self.mode.methods {
-	// 				if method.id()==m {
-	// 					// self.reset();
-	// 					// self.mode.current_method = method.clone()
-	// 				}
-	// 			}                			
-	//     	}
-	//     }
-	// }
-
 	// Loop every condition, if any return false it means conditions are not met // MAYBE USE `enumset` or something
 	pub fn are_conditions_met(&self, conditions: &Vec<Condition>) -> bool {
 		for condition in conditions {
@@ -81,6 +78,7 @@ impl ModeHouse {
 				Condition::CurrentMethodIs(c) => if c==self.mode.methods.get(self.current_method).unwrap().id() { true } else { false },
 				Condition::Empty => true,//if current_method instanceof table && self.current_method.key_sequence.len()==1 { true },
 				Condition::CurrentMethodIsInstanceOf(c) => true, //downcast? maybe on deserialize of the String I can assign a type there,
+				Condition::ResponseIsCommit => true,
 			};
 
 			if !boolean {

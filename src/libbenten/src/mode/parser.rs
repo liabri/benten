@@ -15,8 +15,6 @@ pub struct Mode {
 	pub bindings: Option<Vec<Binding>>,
 }
 
-pub struct MethodHandle(usize);
-
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Binding {
@@ -27,14 +25,16 @@ pub struct Binding {
 
 #[derive(Clone, Debug, Deserialize)]
 pub enum Function {
-	ChangeMethodTo(String)
+	ChangeMethodTo(String),
+	CommitThenChangeMethodTo(String),
 }
 
 #[derive(Debug, Deserialize)]
 pub enum Condition {
 	CurrentMethodIs(String),
 	Empty,
-	CurrentMethodIsInstanceOf(String)
+	CurrentMethodIsInstanceOf(String),
+	ResponseIsCommit,
 }
 
 impl Mode {
