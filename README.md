@@ -8,9 +8,9 @@ As I started to learn Japanese, I wanted a way to input without having to rely o
 Named after the Japanese Buddhist Goddess "Benzaiten" (弁才天) whom stands for all things that flow (as per Wikipedia), which hopefully represents this project well :).  
 
 ## todo
-- BentenCli;
-- Unicode Method;
-- How are differrent glyphs of many CJK characters handled ?
+- Benten cli;
+- Unicode method;
+- [Glyph variant forms](https://en.wikipedia.org/wiki/Variant_form_(Unicode))
 - Possibly abstract key codes;
 - Possibly refactor `Layout` & `LayoutMethod`;
 - Prevent recreation of `BaseDirectories` struct in deserialisation methods in mode/parser.rs;
@@ -19,5 +19,5 @@ Named after the Japanese Buddhist Goddess "Benzaiten" (弁才天) whom stands fo
 ## configuration
 As of now all the configuration is done in `$XDG_CONFIG_HOME`, consisting of three folders: 
 1. `layouts`: key map and layout configuration, defined in `*.layout.yaml`;
-2. `tables`: complementary table method for handling table-based lookup input methods, defined in `*.dict.yaml`;
-3. `modes`: the glue holding the pieces together, contains global hot keys, relationships between different methods, defined in `*mode.yaml`.
+2. `tables`: table method for table-lookup (requires a complementary layout file), defined in `*.dict.yaml`;
+3. `modes`: the glue holding the pieces together, contains global hot keys defining relationships between different methods, defined in `*mode.yaml`.
