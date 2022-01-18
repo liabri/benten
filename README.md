@@ -14,7 +14,6 @@ Named after the Japanese Buddhist Goddess "Benzaiten" (弁才天) whom stands fo
 - Possibly abstract key codes;
 - Possibly refactor `Layout` & `LayoutMethod`;
 - Prevent recreation of `BaseDirectories` struct in deserialisation methods in mode/parser.rs;
-- Optimised tracking of current method in mode;
 - BTreeMaps ?
 
 ## configuration
