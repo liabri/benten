@@ -66,7 +66,7 @@ impl PressState {
 impl BentenContext {
     pub fn new(vk: Main<ZwpVirtualKeyboardV1>, im: Main<ZwpInputMethodV2>, timer: TimerFd) -> Self { 
         Self {
-            engine: BentenEngine::new(BentenConfig { id: "japanese".to_string() }),
+            engine: BentenEngine::new(&BentenConfig { id: "japanese".to_string() }),
             current_state: InputMethodState::Inactive,
             serial: 0,
             keymap_init: false,
