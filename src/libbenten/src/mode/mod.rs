@@ -78,7 +78,6 @@ impl ModeHouse {
 				Condition::CurrentMethodIs(c) => if c==self.mode.methods.get(self.current_method).unwrap().id() { true } else { false },
 				Condition::Empty => true,//if current_method instanceof table && self.current_method.key_sequence.len()==1 { true },
 				Condition::CurrentMethodIsInstanceOf(c) => true, //downcast? maybe on deserialize of the String I can assign a type there,
-				Condition::ResponseIsCommit => true,
 			};
 
 			if !boolean {
