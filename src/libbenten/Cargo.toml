@@ -15,3 +15,10 @@ serde_with = "1.11.0"
 thiserror = "1.0.30"
 xdg = "2.4.0"
 #https://crates.io/crates/ahash
+
+[dev-dependencies]
+criterion = { version = "0.3.4", features = ["html_reports"] }
+
+[[bench]]
+name = "simple"
+harness = false
