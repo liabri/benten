@@ -9,7 +9,6 @@ fn simple(c: &mut Criterion) {
         b.iter(|| {
             for _ in 0..5 {
                 engine.on_key_press(20);
-                // engine.on_key_press(22);
             }
         })
     });
@@ -18,7 +17,6 @@ fn simple(c: &mut Criterion) {
         b.iter(|| {
             for _ in 0..50 {
                 engine.on_key_press(20);
-                // engine.on_key_press(22);
             }
         })
     });
@@ -27,7 +25,6 @@ fn simple(c: &mut Criterion) {
         b.iter(|| {
             for _ in 0..500 {
                 engine.on_key_press(20);
-                // engine.on_key_press(22);
             }
         })
     });
