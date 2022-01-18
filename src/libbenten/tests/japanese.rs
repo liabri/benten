@@ -11,24 +11,36 @@ fn kana() {
         (45, BentenResponse::Commit("い".to_string())),
         (25, BentenResponse::Commit("く".to_string()))
     ])
-    // let mut engine = BentenEngine::new(BentenConfig { id: "japanese".to_string() });
+}
 
-    // //kana
-    // assert_eq!(engine.on_key_press(45), BentenResponse::Commit(String::from("い")));
-    // assert_eq!(engine.on_key_press(25), BentenResponse::Commit(String::from("く")));
+#[test]
+fn han() {
+    test_input(&[
+        (47, BentenResponse::Empty),
+        (18, BentenResponse::Suggest(String::from("日"))),
+        (65, BentenResponse::Commit(String::from("日"))),
+        (25, BentenResponse::Commit(String::from("く"))),
+        (65, BentenResponse::Null)
+    ])
+}
 
-    // //han
-    // assert_eq!(engine.on_key_press(47), BentenResponse::Empty);
-    // assert_eq!(engine.on_key_press(18), BentenResponse::Suggest(String::from("日")));
-    // assert_eq!(engine.on_key_press(65), BentenResponse::Commit(String::from("日")));
+#[test]
+fn cangjie_next_prev_key() {
+    test_input(&[
+        (47, BentenResponse::Empty),
+        (18, BentenResponse::Suggest(String::from("日"))),
+        (23, BentenResponse::Suggest(String::from("曰"))),
+        (65, BentenResponse::Commit(String::from("曰")))
+    ])
+}
 
-    // //back to kana
-    // assert_eq!(engine.on_key_press(25), BentenResponse::Commit(String::from("く")));
-    // assert_eq!(engine.on_key_press(65), BentenResponse::Null);
-
-    // //han + next
-    // assert_eq!(engine.on_key_press(47), BentenResponse::Empty);
-    // assert_eq!(engine.on_key_press(18), BentenResponse::Suggest(String::from("日")));
-    // assert_eq!(engine.on_key_press(23), BentenResponse::Suggest(String::from("曰")));
-    // assert_eq!(engine.on_key_press(65), BentenResponse::Commit(String::from("曰")));
+#[test]
+fn cangjie_backspace_key() {
+    test_input(&[
+        (47, BentenResponse::Empty),
+        (24, BentenResponse::Suggest(String::from("手"))),
+        (24, BentenResponse::Suggest(String::from("抙"))),
+        (22, BentenResponse::Suggest(String::from("手"))),
+        (65, BentenResponse::Commit(String::from("手")))
+    ])
 }
