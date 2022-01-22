@@ -34,7 +34,7 @@ pub enum Condition {
 	CurrentMethodIs(String),
 	Empty,
 	CurrentMethodIsInstanceOf(String),
-	ResponseIsCommit,
+	// ResponseIsCommit,
 }
 
 impl Mode {
