@@ -32,6 +32,17 @@ checksum = "cdb031dd78e28731d87d56cc8ffef4a8f36ca26c38fe2de700543e627f8a464a"
 name = "benten"
 version = "0.1.0"
 dependencies = [
+ "benten-wayland",
+ "inotify",
+ "log",
+ "simplelog",
+ "xdg",
+]
+
+[[package]]
+name = "benten-cli"
+version = "0.1.0"
+dependencies = [
  "structopt",
  "xdg",
 ]
@@ -49,17 +60,6 @@ dependencies = [
  "wayland-client",
  "wayland-protocols",
  "zwp-virtual-keyboard",
-]
-
-[[package]]
-name = "bentend"
-version = "0.1.0"
-dependencies = [
- "benten-wayland",
- "inotify",
- "log",
- "simplelog",
- "xdg",
 ]
 
 [[package]]

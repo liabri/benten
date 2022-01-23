@@ -1,0 +1,8 @@
+[package]
+name = "benten-cli"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+structopt = "0.3.25"
+xdg = "2.4.0"
