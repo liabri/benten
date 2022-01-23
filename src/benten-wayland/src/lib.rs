@@ -1,8 +1,8 @@
 mod context;
 use context::BentenContext;
 
-use mio::{unix::SourceFd, Events as MioEvents, Interest, Poll, Token};
-use mio_timerfd::{ClockId, TimerFd};
+use mio::{ unix::SourceFd, Events as MioEvents, Interest, Poll, Token };
+use mio_timerfd::{ ClockId, TimerFd };
 
 use wayland_client::{ event_enum, Display, Filter, GlobalManager, EventQueue };
 use wayland_client::protocol::wl_seat::WlSeat;

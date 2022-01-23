@@ -6,11 +6,30 @@ pub fn main() {
         Command::Start => {},
         Command::Ping => {},
         Command::Kill => {},
-        Command::Set{name} => {},
-        Command::Reload => {},
+        Command::Set{name} => {
+            let file_path = xdg::BaseDirectories::with_prefix("benten").unwrap().get_data_home().join("current_mode");
+            std::fs::create_dir_all(file_path.parent().unwrap()).unwrap();
+            std::fs::write(file_path, name);
+
+        },
+        Command::Reload =>{
+            let file_path = xdg::BaseDirectories::with_prefix("benten").unwrap().get_data_home().join("current_mode");
+            let current_mode = std::fs::read_to_string(&file_path).unwrap();
+            std::fs::create_dir_all(file_path.parent().unwrap()).unwrap();
+            std::fs::write(file_path, current_mode);
+        },
+
+        Command::Current => {
+            let file_path = xdg::BaseDirectories::with_prefix("benten").unwrap().get_data_home().join("current_mode");
+            println!("{}", std::fs::read_to_string(&file_path).unwrap());
+        },
+
         Command::List => {},
-        Command::Current => {},
     };
+}
+
+fn write_current_mode(mode: &str) {
+    let file_path = xdg::BaseDirectories::with_prefix("benten").unwrap().get_data_home().join("current_mode");
 }
 
 #[derive(StructOpt)]
