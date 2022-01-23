@@ -24,12 +24,24 @@ pub fn main() {
             println!("{}", std::fs::read_to_string(&file_path).unwrap());
         },
 
-        Command::List => {},
-    };
-}
+        Command::List => {
+            let base_dir = xdg::BaseDirectories::with_prefix("benten").unwrap().get_config_home(); 
 
-fn write_current_mode(mode: &str) {
-    let file_path = xdg::BaseDirectories::with_prefix("benten").unwrap().get_data_home().join("current_mode");
+            println!("modes");
+            let modes_dir = base_dir.join("modes"); 
+            let paths = std::fs::read_dir(modes_dir).unwrap();
+            for path in paths {
+                println!("  {}", path.unwrap().file_name().to_str().unwrap().split('.').next().unwrap())
+            }
+
+            println!("\nlayouts");
+            let layouts_dir = base_dir.join("layouts"); 
+            let paths = std::fs::read_dir(layouts_dir).unwrap();
+            for path in paths {
+                println!("  {}", path.unwrap().file_name().to_str().unwrap().split('.').next().unwrap())           
+            }
+        },
+    };
 }
 
 #[derive(StructOpt)]
