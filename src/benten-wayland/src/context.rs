@@ -12,7 +12,7 @@ use wayland_protocols::misc::zwp_input_method_v2::client::{
 use zwp_virtual_keyboard::virtual_keyboard_unstable_v1::zwp_virtual_keyboard_v1::ZwpVirtualKeyboardV1;
 
 pub struct BentenContext {
-    engine: BentenEngine,
+    pub engine: BentenEngine,
     current_state: InputMethodState,
     vk: Main<ZwpVirtualKeyboardV1>,
     im: Main<ZwpInputMethodV2>,
@@ -23,7 +23,7 @@ pub struct BentenContext {
     repeat_state: Option<(RepeatInfo, PressState)>,
 }
 
-// Global modifiers that should not be handled in the engine
+// Global modifiers that should not be handled in the engine, maybe define them in .layout.yaml ?
 pub enum ModifierState {
     CONTROL = 0x4,
     SUPER = 0x40,
@@ -64,9 +64,9 @@ impl PressState {
 }
 
 impl BentenContext {
-    pub fn new(vk: Main<ZwpVirtualKeyboardV1>, im: Main<ZwpInputMethodV2>, timer: TimerFd) -> Self { 
+    pub fn new(mode: &str, vk: Main<ZwpVirtualKeyboardV1>, im: Main<ZwpInputMethodV2>, timer: TimerFd) -> Self { 
         Self {
-            engine: BentenEngine::new(&BentenConfig { id: "japanese".to_string() }),
+            engine: BentenEngine::new(&BentenConfig { id: String::from(mode) }),
             current_state: InputMethodState::Inactive,
             serial: 0,
             keymap_init: false,
