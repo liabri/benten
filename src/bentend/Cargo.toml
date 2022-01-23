@@ -9,5 +9,4 @@ log = "0.4.14"
 simplelog = "0.11.2"
 
 inotify = "0.10.0"
-futures = "0.3.19"
 xdg = "2.4.0"
