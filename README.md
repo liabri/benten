@@ -8,6 +8,7 @@ As I started to learn Japanese, I wanted a way to input without having to rely o
 Named after the Japanese Buddhist Goddess "Benzaiten" (弁才天) whom stands for all things that flow (as per Wikipedia), which hopefully represents this project well :).  
 
 ## todo
+- Compose based on surrounding text, eg: "+" then a "-" would replace them with a "±"
 - Benten cli;
 - Unicode method;
 - [Glyph variant forms](https://en.wikipedia.org/wiki/Variant_form_(Unicode))
