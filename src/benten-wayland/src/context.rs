@@ -12,7 +12,7 @@ use wayland_protocols::misc::zwp_input_method_v2::client::{
 use zwp_virtual_keyboard::virtual_keyboard_unstable_v1::zwp_virtual_keyboard_v1::ZwpVirtualKeyboardV1;
 
 pub struct BentenContext {
-    pub engine: BentenEngine,
+    engine: BentenEngine,
     current_state: InputMethodState,
     vk: Main<ZwpVirtualKeyboardV1>,
     im: Main<ZwpInputMethodV2>,
