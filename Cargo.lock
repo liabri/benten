@@ -425,6 +425,7 @@ name = "libbenten"
 version = "0.1.0"
 dependencies = [
  "criterion",
+ "log",
  "serde",
  "serde_with",
  "serde_yaml",

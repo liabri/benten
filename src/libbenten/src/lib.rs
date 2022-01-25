@@ -18,11 +18,13 @@ pub struct BentenConfig {
 impl BentenEngine {
 	pub fn new(config: &BentenConfig) -> Self {
         let dir = xdg::BaseDirectories::with_prefix("benten").unwrap().get_config_home();
-        println!("ID: {}", &config.id);
 		BentenEngine {
-            mode: RefCell::new(Box::new(ModeHouse::new(&config.id, &dir).unwrap())),
+            mode: RefCell::new(Box::new(ModeHouse::new(&config.id, &dir)
+                .map_err(|_| panic!("Mode `{}` not found", &config.id.replace("\n", ""))).unwrap())),
             dir
         }
+
+        //human-panic crate
 	}
 
     pub fn on_key_press(&mut self, key_code: u16) -> BentenResponse {
@@ -32,10 +34,6 @@ impl BentenEngine {
     pub fn on_key_release(&mut self, key_code: u16) -> BentenResponse {
     	self.mode.borrow_mut().on_key_release(key_code)
     }
-
-    pub fn current_mode(&mut self) -> String {
-        self.mode.borrow_mut().id.clone()
-    } 
 
     pub fn set_mode(&mut self, name: &str) {
     	self.mode = RefCell::new(Box::new(ModeHouse::new(name, &self.dir).unwrap()));

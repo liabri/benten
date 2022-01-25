@@ -28,7 +28,7 @@ event_enum! {
 }
 
 pub struct State {
-    pub context: BentenContext,
+    context: BentenContext,
     display: Display,
     event_queue: EventQueue,
     poll: Poll,
@@ -97,7 +97,7 @@ impl State {
         let mut watcher = Inotify::new();
         watcher.register(poll.registry(), WATCHER_INOTIFY, Interest::READABLE).unwrap();
 
-        let (resp, channel) = channel();
+        let (resp, _) = channel();
         sender.send(benten_ipc::WatchRequest { file: ipc_path.to_path_buf(), resp }).unwrap();
         waker.wake().unwrap();
 
@@ -119,18 +119,17 @@ impl State {
     pub fn run(&mut self) {
         let mut events = MioEvents::with_capacity(1024);
         let stop_reason = 'main: loop {
-            
+            use std::io::ErrorKind;
+
             //move to Self::new(...) ?
             loop {
                 match self.requests.try_recv() {
                     Ok(e) => self.watcher.add_watcher(e.file, e.resp),
                     _ => break
-                    // Err(TryRecvError::Empty) => break Err(TryRecvError::Empty),
-                    // Err(TryRecvError::Disconnected) => break 'main Err(TryRecvError::Disconnected),
+                    // Err(TryRecvError::Empty) => break,
+                    // Err(TryRecvError::Disconnected) => break 'main std::io::Error::from(ErrorKind::Interrupted),
                 }
             }
-
-            use std::io::ErrorKind;
 
             // Sleep until next event
             if let Err(e) = self.poll.poll(&mut events, None) {

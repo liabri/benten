@@ -83,8 +83,6 @@ struct WatchState {
 
 impl Inotify {
     pub fn new() -> Self {
-        // let flags = if blocking { 0 } else { ffi::IN_NONBLOCK };
-
         let flags = ffi::IN_NONBLOCK;
 
         // SAFETY
@@ -100,13 +98,11 @@ impl Inotify {
     pub fn add_watcher(&mut self, path: PathBuf, sender: Sender<EventMask>) {
         match self.watchers.get_mut(&path) {
             Some(watch) => {
-                eprintln!("Adding to Existing Watch");
                 watch.watchers.push(sender);
             }
-            None => {
-                eprintln!("Creating Watch");
-                // Init new watch
 
+            // Init new watch
+            None => {
                 // TODO(josiah) I need to make sure that it is safe to
                 // drop a value passed to inotify_add_watch
                 let cstr_name = CString::new(path.to_str().unwrap()).unwrap();
@@ -128,9 +124,7 @@ impl Inotify {
 
     pub fn handle_events(&mut self) {
         for event in iterator::RawEventIter::new(self.fd) {
-            let rem = if let Some((path, state)) =
-                self.watchers.iter_mut().find(|(_, v)| v.wd == event.wd)
-            {
+            let rem = if let Some((path, state)) = self.watchers.iter_mut().find(|(_, v)| v.wd == event.wd) {
                 if !state.watchers.is_empty() {
                     let mut watchers = Vec::new();
                     std::mem::swap(&mut watchers, &mut state.watchers);
