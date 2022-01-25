@@ -192,9 +192,12 @@ impl BentenContext {
                     self.mod_state = false;
                 } else if 0 != mods_depressed & (ModifierState::SUPER as u32) {
                     self.mod_state = false;
-                } else if 0 != mods_depressed & (ModifierState::LALT as u32) {
-                    self.mod_state = false;
-                }
+                } //else if 0 != mods_depressed & (ModifierState::LALT as u32) {
+                //     println!("LALT");
+                //     self.mod_state = false;
+                // }
+
+                //Need to figure out how to differentiate between L_ALT and R_ALT
 
                 self.vk.modifiers(mods_depressed, mods_latched, mods_locked, group);
             },
