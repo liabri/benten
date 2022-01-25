@@ -2,7 +2,7 @@ mod context;
 use context::BentenContext;
 
 use benten_ipc::{ Inotify, WatchRequest };
-use std::path::Path;
+use std::path::PathBuf;
 use std::sync::mpsc::{ Receiver, TryRecvError, sync_channel, channel };
 
 use mio::{ event::Source, unix::SourceFd, Events as MioEvents, Interest, Poll, Waker, Token };
@@ -33,7 +33,8 @@ pub struct State {
     event_queue: EventQueue,
     poll: Poll,
     watcher: Inotify,
-    requests: Receiver<WatchRequest>
+    requests: Receiver<WatchRequest>,
+    ipc_path: PathBuf
 }
 
 const POLL_WAYLAND: Token = Token(0);
@@ -42,7 +43,7 @@ const WAKE_TOKEN: Token = Token(2);
 const WATCHER_INOTIFY: Token = Token(3);
 
 impl State {
-    pub fn new(ipc_path: &Path, mode: &str) -> Self {
+    pub fn new(ipc_path: PathBuf, mode: &str) -> Self {
         let display = Display::connect_to_env().map_err(|e| log::error!("Failed to connect to wayland display: {}", e)).unwrap();
         let mut event_queue = display.create_event_queue();
         let attached_display = display.attach(event_queue.token());
@@ -112,7 +113,8 @@ impl State {
             context,
             poll,
             watcher,
-            requests
+            requests,
+            ipc_path
         }
     }
 
@@ -153,12 +155,13 @@ impl State {
 
                     WATCHER_INOTIFY => {
                         println!("Woken up by inotify token");
+                        let new_mode = std::fs::read_to_string(&self.ipc_path).unwrap();
+                        self.context.engine.set_mode(&new_mode);
                         // self.watcher.handle_events();
                     },
 
                     WAKE_TOKEN => {
                         eprintln!("Woken up by wake token");
-                        continue 'main;
                     }
 
                     _ => unreachable!(),

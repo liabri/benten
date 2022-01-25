@@ -16,8 +16,12 @@ pub struct BentenConfig {
 }
 
 impl BentenEngine {
-	pub fn new(config: &BentenConfig) -> Self {
+	pub fn new(config: &mut BentenConfig) -> Self {
         let dir = xdg::BaseDirectories::with_prefix("benten").unwrap().get_config_home();
+
+        //rid id of non visible characters such as "\n"
+        config.id.retain(|c| !c.is_whitespace());
+
 		BentenEngine {
             mode: RefCell::new(Box::new(ModeHouse::new(&config.id, &dir)
                 .map_err(|_| panic!("Mode `{}` not found", &config.id.replace("\n", ""))).unwrap())),
@@ -36,7 +40,8 @@ impl BentenEngine {
     }
 
     pub fn set_mode(&mut self, name: &str) {
-    	self.mode = RefCell::new(Box::new(ModeHouse::new(name, &self.dir).unwrap()));
+    	self.mode = RefCell::new(Box::new(ModeHouse::new(name, &self.dir)
+            .map_err(|_| panic!("Mode `{}` not found", &name)).unwrap()));
     }
 
     pub fn reset(&mut self) {
@@ -48,7 +53,7 @@ impl BentenEngine {
 pub enum BentenResponse {
     Commit(String),
     Suggest(String),
-    Null, //NoChar
+    Null, //NoChar aka KeyCode is not there
     Empty, //Was found but didnt have anything to return, intentional (such as functions like HAN key)
 }
 
