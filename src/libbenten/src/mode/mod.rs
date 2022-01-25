@@ -27,35 +27,36 @@ impl ModeHouse {
     	let mode = &self.mode;
     	if let Some(bindings) = &mode.bindings {
     		for binding in bindings {
-				let level = self.layout.calculate_level();
-	            if let Some(some_key_code) = binding.key_codes.get(level) {
-	                if some_key_code==&key_code {
-	                	if self.are_conditions_met(&binding.conditions) {
-	                		match &binding.function {
-		                		Function::ChangeMethodTo(m) => {
-									for (i, method) in self.mode.methods.iter().enumerate() {
-										if method.id()==m {
-											self.reset();
-											self.current_method = i;
-											return BentenResponse::Empty;
-										}
-									}                			
-						    	},
+				if let Some(level) = self.layout.calculate_level() {
+		            if let Some(some_key_code) = binding.key_codes.get(level) {
+		                if some_key_code==&key_code {
+		                	if self.are_conditions_met(&binding.conditions) {
+		                		match &binding.function {
+			                		Function::ChangeMethodTo(m) => {
+										for (i, method) in self.mode.methods.iter().enumerate() {
+											if method.id()==m {
+												self.reset();
+												self.current_method = i;
+												return BentenResponse::Empty;
+											}
+										}                			
+							    	},
 
-						    	Function::CommitThenChangeMethodTo(m) => {
-									for (i, method) in self.mode.methods.iter().enumerate() {
-										if method.id()==m {
-											let v = self.mode.methods.get_mut(self.current_method).unwrap().on_key_press(key_code);
-											self.reset();
-											self.current_method = i;
-											return v;
-										}
-									}                			
+							    	Function::CommitThenChangeMethodTo(m) => {
+										for (i, method) in self.mode.methods.iter().enumerate() {
+											if method.id()==m {
+												let v = self.mode.methods.get_mut(self.current_method).unwrap().on_key_press(key_code);
+												self.reset();
+												self.current_method = i;
+												return v;
+											}
+										}                			
+							    	}
+
 						    	}
-
-					    	}
-	                	}
-		            }
+		                	}
+			            }
+					}
 				}
     		}
     	}

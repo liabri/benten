@@ -104,25 +104,30 @@ pub trait LayoutMethodTrait: LayoutHelper {
         } 
     }
 
-    fn calculate_level(&mut self) -> usize {
+    fn calculate_level(&mut self) -> Option<usize> {
         let tuple = self.layout_n_modifiers_pressed();
+
+        if tuple.1.is_empty() {
+            return Some(0);
+        }
+
         for layout_modifier in &tuple.0.modifiers {
             if layout_modifier.key_codes==*tuple.1 {
-                return (layout_modifier.level-1).into();
+                return Some((layout_modifier.level-1).into());
             }
         }
 
-        return 0;
+        None
     }
 
     fn calculate_char(&mut self, key_code: &u16) -> Option<String> {
-        let level = self.calculate_level();
-
-        if let Some(keys) = &self.layout().keys {
-            if let Some(key_code) = keys.get(key_code) {
-                if let Some(character) = key_code.get(level) {
-                    if let Some(c) = character {
-                        return Some(c.to_owned());
+        if let Some(level) = self.calculate_level() {
+            if let Some(keys) = &self.layout().keys {
+                if let Some(key_code) = keys.get(key_code) {
+                    if let Some(character) = key_code.get(level) {
+                        if let Some(c) = character {
+                            return Some(c.to_owned());
+                        }
                     }
                 }
             }
@@ -132,20 +137,20 @@ pub trait LayoutMethodTrait: LayoutHelper {
     }
 
     fn calculate_special_key(&mut self, key_code: &u16) -> Option<String> {
-        let level = self.calculate_level();
+        if let Some(level) = self.calculate_level() {
+            if let Some(special_keys) = &self.layout().special_keys {
+                if let Some(value_opt) = special_keys.get(key_code) {
+                    let opt: Option<&String> = value_opt.get(level);
 
-        if let Some(special_keys) = &self.layout().special_keys {
-            if let Some(value_opt) = special_keys.get(key_code) {
-                let opt: Option<&String> = value_opt.get(level);
+                    // Rely on last previous non null value, allowing special keys to be used when modifiers are pressed
+                    // while opt.is_none() {
+                    //     opt = value_opt.get(level-1);
+                    // }
 
-                // Rely on last previous non null value, allowing special keys to be used when modifiers are pressed
-                // while opt.is_none() {
-                //     opt = value_opt.get(level-1);
-                // }
-
-                // return opt.map(ToOwned::to_owned);
-                if let Some(value) = opt {
-                    return Some(value.to_owned());
+                    // return opt.map(ToOwned::to_owned);
+                    if let Some(value) = opt {
+                        return Some(value.to_owned());
+                    }
                 }
             }
         }
