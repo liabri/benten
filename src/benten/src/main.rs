@@ -1,18 +1,19 @@
 extern crate benten_wayland;
 mod logger;
 
-use inotify::{ Inotify, WatchMask };
-
-use std::thread;
+// use inotify::{ Inotify, WatchMask };
+// use std::thread;
 
 fn main() {
     logger::init("debug").map_err(|err| eprintln!("logger failed to initialise: {:?}", err)).unwrap();
-    let mut server = benten_wayland::Server::new("kana");
-    server.start();
+   
+	let path = xdg::BaseDirectories::with_prefix("benten").unwrap().get_data_home().join("current_mode");
+    let mut state = benten_wayland::State::new(&path, "kana");
+    state.run();
 
 	// std::thread::spawn(|| {
 	// 	let mut watcher = Inotify::init().unwrap();
-	//     let path = xdg::BaseDirectories::with_prefix("benten").unwrap().get_data_home().join("current_mode");
+	    // let path = xdg::BaseDirectories::with_prefix("benten").unwrap().get_data_home().join("current_mode");
 	// 	watcher.add_watch(&path, WatchMask::MODIFY).unwrap();
 	// 	let mut buffer = [0; 1024];
 

@@ -1,7 +1,11 @@
 mod context;
 use context::BentenContext;
 
-use mio::{ unix::SourceFd, Events as MioEvents, Interest, Poll, Token };
+use benten_ipc::{ Inotify, WatchRequest };
+use std::path::Path;
+use std::sync::mpsc::{ Receiver, TryRecvError, sync_channel, channel };
+
+use mio::{ event::Source, unix::SourceFd, Events as MioEvents, Interest, Poll, Waker, Token };
 use mio_timerfd::{ ClockId, TimerFd };
 
 use wayland_client::{ event_enum, Display, Filter, GlobalManager, EventQueue };
@@ -23,15 +27,22 @@ event_enum! {
     Im => ZwpInputMethodV2
 }
 
-pub struct Server {
+pub struct State {
     pub context: BentenContext,
     display: Display,
     event_queue: EventQueue,
-    poll: Poll
+    poll: Poll,
+    watcher: Inotify,
+    requests: Receiver<WatchRequest>
 }
 
-impl Server {
-    pub fn new(mode: &str) -> Self {
+const POLL_WAYLAND: Token = Token(0);
+const POLL_TIMER: Token = Token(1);
+const WAKE_TOKEN: Token = Token(2);
+const WATCHER_INOTIFY: Token = Token(3);
+
+impl State {
+    pub fn new(ipc_path: &Path, mode: &str) -> Self {
         let display = Display::connect_to_env().map_err(|e| log::error!("Failed to connect to wayland display: {}", e)).unwrap();
         let mut event_queue = display.create_event_queue();
         let attached_display = display.attach(event_queue.token());
@@ -63,11 +74,10 @@ impl Server {
         im.assign(filter);
 
         let mut timer = TimerFd::new(ClockId::Monotonic).expect("Initialize timer");
-        let mut poll = Poll::new().expect("Initialize epoll()");
+        let poll = Poll::new().expect("Initialize epoll()");
         
         let registry = poll.registry();
 
-        const POLL_WAYLAND: Token = Token(0);
         registry.register(
             &mut SourceFd(&display.get_connection_fd()),
             POLL_WAYLAND,
@@ -75,12 +85,21 @@ impl Server {
         ).expect("Register wayland socket to the epoll()");
 
         // Required for hold event of engine values
-        const POLL_TIMER: Token = Token(1);
         registry.register(
             &mut timer, 
             POLL_TIMER, 
             Interest::READABLE
         ).expect("Register timer to the epoll()");
+
+        // Initialise inotify watcher
+        let (sender, requests): (_, Receiver<WatchRequest>) = sync_channel(16);
+        let waker = Waker::new(poll.registry(), WAKE_TOKEN).unwrap();
+        let mut watcher = Inotify::new();
+        watcher.register(poll.registry(), WATCHER_INOTIFY, Interest::READABLE).unwrap();
+
+        let (resp, channel) = channel();
+        sender.send(benten_ipc::WatchRequest { file: ipc_path.to_path_buf(), resp }).unwrap();
+        waker.wake().unwrap();
 
         // Initialize context
         let mut context = BentenContext::new(mode, vk, im, timer);
@@ -91,13 +110,26 @@ impl Server {
             display,
             event_queue,
             context,
-            poll
+            poll,
+            watcher,
+            requests
         }
     }
 
-    pub fn start(&mut self) {
+    pub fn run(&mut self) {
         let mut events = MioEvents::with_capacity(1024);
         let stop_reason = 'main: loop {
+            
+            //move to Self::new(...) ?
+            loop {
+                match self.requests.try_recv() {
+                    Ok(e) => self.watcher.add_watcher(e.file, e.resp),
+                    _ => break
+                    // Err(TryRecvError::Empty) => break Err(TryRecvError::Empty),
+                    // Err(TryRecvError::Disconnected) => break 'main Err(TryRecvError::Disconnected),
+                }
+            }
+
             use std::io::ErrorKind;
 
             // Sleep until next event
@@ -112,12 +144,24 @@ impl Server {
 
             for event in &events {
                 match event.token() {
-                    POLL_WAYLAND => {}
+                    POLL_WAYLAND => {},
+
                     POLL_TIMER => {
                         if let Err(e) = self.context.handle_timer_ev() {
                             break 'main Err(e);
                         }
+                    },
+
+                    WATCHER_INOTIFY => {
+                        println!("Woken up by inotify token");
+                        // self.watcher.handle_events();
+                    },
+
+                    WAKE_TOKEN => {
+                        eprintln!("Woken up by wake token");
+                        continue 'main;
                     }
+
                     _ => unreachable!(),
                 }
             }

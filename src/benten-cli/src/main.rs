@@ -4,7 +4,6 @@ use structopt::clap::AppSettings;
 pub fn main() {
     match Arguments::from_args().command {
         Command::Start => {},
-        Command::Ping => {},
         Command::Kill => {},
         Command::Set{name} => {
             let file_path = xdg::BaseDirectories::with_prefix("benten").unwrap().get_data_home().join("current_mode");
@@ -61,14 +60,10 @@ pub enum Command {
     Start,
 
     #[structopt(alias = "k", no_version, global_settings = &[AppSettings::DisableVersion])]
-    ///Ping benten to check if its reachable
-    Ping,
-
-    #[structopt(alias = "k", no_version, global_settings = &[AppSettings::DisableVersion])]
     ///Kill benten
     Kill,
 
-    #[structopt(alias = "set", no_version, global_settings = &[AppSettings::DisableVersion])]
+    #[structopt(no_version, global_settings = &[AppSettings::DisableVersion])]
     ///Set specific mode
     Set { name: String },
 

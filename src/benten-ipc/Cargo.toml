@@ -1,0 +1,13 @@
+[package]
+name = "benten-ipc"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "benten_ipc"
+path = "src/lib.rs"
+crate-type = ["rlib"]
+
+[dependencies]
+inotify-sys = "0.1.5"
+mio = { version = "0.7.7", features = ["os-ext"] }

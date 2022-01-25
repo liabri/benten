@@ -3,7 +3,8 @@ members = [
 	"src/benten-cli",
     "src/benten",
     "src/libbenten",
-    "src/benten-wayland"
+    "src/benten-wayland",
+    "src/benten-ipc"
 ]
 
 [profile.release]
