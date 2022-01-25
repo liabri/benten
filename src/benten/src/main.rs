@@ -11,6 +11,6 @@ fn main() {
 	let mode = read_to_string(&path)
 		.map_err(|_| log::error!("No mode set at $XDG_DATA_HOME/benten/current_mode")).unwrap();
 
-	let mut state = benten_wayland::State::new(&path, &mode);
+	let mut state = benten_wayland::State::new(path, &mode);
 	state.run();
 }
