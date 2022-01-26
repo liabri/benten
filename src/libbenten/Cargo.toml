@@ -9,6 +9,7 @@ path = "src/lib.rs"
 crate-type = ["rlib"]
 
 [dependencies]
+csv = "1.1.6"
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.8.21"
 serde_with = "1.11.0"
