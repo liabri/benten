@@ -66,7 +66,10 @@ impl PressState {
 impl BentenContext {
     pub fn new(mode: &str, vk: Main<ZwpVirtualKeyboardV1>, im: Main<ZwpInputMethodV2>, timer: TimerFd) -> Self { 
         Self {
-            engine: BentenEngine::new(&mut BentenConfig { id: String::from(mode) }),
+            engine: BentenEngine::new(BentenConfig { 
+                id: String::from(mode),
+                ..BentenConfig::default() 
+            }),
             current_state: InputMethodState::Inactive,
             serial: 0,
             keymap_init: false,
