@@ -1,9 +1,7 @@
 mod methods;
-mod mode;
 
 use std::cell::RefCell;
 use std::path::PathBuf;
-use mode::ModeHouse;
 use methods::Global;
 use thiserror::Error;
 
@@ -79,7 +77,7 @@ impl Default for BentenConfig {
     fn default() -> Self {
         BentenConfig {
             dir: xdg::BaseDirectories::with_prefix("benten").unwrap().get_config_home(),
-            id: "Layout id was not defined".to_string()
+            id: "layout id was not defined".to_string()
         }
     }
 }
