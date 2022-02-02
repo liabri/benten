@@ -37,7 +37,7 @@ impl Global {
     }
 }
 
-fn from_id<'de, D>(deserializer: D) -> Result<Vec<Box<GenericMethodTrait>>, D::Error>
+fn from_id<'de, D>(deserializer: D) -> Result<Vec<Box<dyn GenericMethodTrait>>, D::Error>
 where D: Deserializer<'de> {
     // TEMPORARY
     let base_dir = xdg::BaseDirectories::with_prefix("benten").unwrap().get_config_home();
@@ -56,4 +56,14 @@ where D: Deserializer<'de> {
     }
 
     Ok(out)
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn global_parse() {
+    }
 }
