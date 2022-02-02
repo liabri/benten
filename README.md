@@ -9,13 +9,11 @@ Named after the Japanese Buddhist Goddess "Benzaiten" (弁才天) whom stands fo
 
 ## todo
 - Compose based on surrounding text, eg: "+" then a "-" would replace them with a "±"
-- Benten cli;
 - Unicode method;
 - [Glyph variant forms](https://en.wikipedia.org/wiki/Variant_form_(Unicode))
 - Possibly abstract key codes;
-- Possibly refactor `Layout` & `LayoutMethod`;
-- Prevent recreation of `BaseDirectories` struct in deserialisation methods in mode/parser.rs;
-- BTreeMaps ?
+- Prevent recreation of `BaseDirectories` struct in deserialisation methods in global parser;
+- BTreeMaps/IndexMap/AHash ?
 
 ## configuration
 As of now all the configuration is done in `$XDG_CONFIG_HOME`, consisting of three folders: 
