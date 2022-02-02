@@ -21,15 +21,15 @@ pub trait GenericMethodTrait {
 #[derive(Deserialize)]
 pub struct Global {
     #[serde(skip)]
-    id: String,
+    pub id: String,
     #[serde(deserialize_with = "from_id")]
-    methods: Vec<Box<dyn GenericMethodTrait>>, // 0 = main method, the rest are part of the main method
+    pub methods: Vec<Box<dyn GenericMethodTrait>>, // 0 = main method, the rest are part of the main method
     #[serde(skip)]
-    current_method: usize,
+    pub current_method: usize,
 }
 
 impl Global {
-    fn new(id: &str, base_dir: &Path) -> Result<Self, BentenError> {
+    pub fn new(id: &str, base_dir: &Path) -> Result<Self, BentenError> {
         let path = base_dir.join("layouts").join(id).with_extension("layout.zm");
         let file = File::open(path)?;
         let reader = BufReader::new(file);
@@ -39,7 +39,7 @@ impl Global {
 
 fn from_id<'de, D>(deserializer: D) -> Result<Vec<Box<GenericMethodTrait>>, D::Error>
 where D: Deserializer<'de> {
-    ///TEMPORARY
+    // TEMPORARY
     let base_dir = xdg::BaseDirectories::with_prefix("benten").unwrap().get_config_home();
 
     let values: Vec<String> = Vec::deserialize(deserializer)?;
