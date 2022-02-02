@@ -52,7 +52,7 @@ impl GenericMethodTrait for TableMethod {
     		self.key_sequence.push_str(&c);
     	}
 
-        if let Some(value) = self.calculate_han() {
+        if let Some(value) = self.calculate_char_dict() {
             if commit {
                 return BentenResponse::Commit(value)
             } else {
@@ -100,7 +100,7 @@ impl LayoutHelper for TableMethod {
 impl LayoutMethodTrait for TableMethod {}
 
 impl TableMethod {
-    pub fn calculate_han(&mut self) -> Option<String> {
+    pub fn calculate_char_dict(&mut self) -> Option<String> {
         //Tolerate index
         if self.index>=self.relative_entries.len() {
             self.index = 0
