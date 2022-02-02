@@ -54,16 +54,14 @@ pub enum BentenResponse {
 
 #[derive(Error, Debug)]
 pub enum BentenError {
-    #[error("io error `{0}`")]
+    #[error("`{0}`")]
     IoError(#[from] std::io::Error),
-    #[error("csv parse error `{0}`")]
+    #[error("`{0}`")]
     CsvParseError(#[from] csv::Error),
-    #[error("zmerald error")]
+    #[error("`parsing error {0}`")]
     ZmeraldError(#[from] zmerald::de::Error),
     #[error("kb parse error")]
     KbParseError,
-    #[error("method not found")]
-    MethodNotFound
 }
 
 pub struct BentenConfig {
