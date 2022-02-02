@@ -129,31 +129,31 @@ impl BentenContext {
             },
 
             KeyEvent::Key { state, key, time, .. } => {
-            	if self.current_state==InputMethodState::Active && self.mod_state {
-	            	match state {
-	            		KeyState::Pressed => {
-					    	match self.engine.on_key_press((key + 8) as u16) {
-					    		BentenResponse::Empty => return,
-					    		BentenResponse::Commit(s) => { 
-					    			self.im.commit_string(s);
-					    			self.im.set_preedit_string(String::new(), -1, -1);
-					    		},
+                if self.current_state==InputMethodState::Active && self.mod_state {
+                    match state {
+                        KeyState::Pressed => {
+                            match self.engine.on_key_press((key + 8) as u16) {
+                                BentenResponse::Empty => return,
+                                BentenResponse::Commit(s) => { 
+                                    self.im.commit_string(s);
+                                    self.im.set_preedit_string(String::new(), -1, -1);
+                                },
 
-					    		BentenResponse::Suggest(s) => {
-					    			let len = s.len();
-        							self.im.set_preedit_string(s, 0, len as _);
-					    		},
+                                BentenResponse::Suggest(s) => {
+                                    let len = s.len();
+                                    self.im.set_preedit_string(s, 0, len as _);
+                                },
 
-					    		BentenResponse::Null => {
-					    			self.vk.key(time, key, state as _);
-					    			return;
-					    		}
-					    	}
+                                BentenResponse::Null => {
+                                    self.vk.key(time, key, state as _);
+                                    return;
+                                }
+                            }
 
                             self.im.commit(self.serial);
                             self.serial += 1;
 
-					    	match self.repeat_state {
+                            match self.repeat_state {
                                 Some((info, ref mut press_state)) if !press_state.is_pressing(key) => {
                                     let duration = Duration::from_millis(info.delay as u64);
                                     self.timer.set_timeout(&duration).unwrap();
@@ -167,9 +167,9 @@ impl BentenContext {
 
                                 _ => {}
                             }
-	            		},
+                        },
 
-	            		KeyState::Released => {
+                        KeyState::Released => {
                             // If user released the last pressed key, clear the timer and state
                             self.engine.on_key_release((key + 8) as u16);
                             if let Some((.., ref mut press_state)) = self.repeat_state {
@@ -180,11 +180,11 @@ impl BentenContext {
                             }
 
                             self.vk.key(time, key, state as _);
-	            		},
+                        },
 
-	            		_ => {}
-	            	}
-            	} else {
+                        _ => {}
+                    }
+                } else {
                     self.vk.key(time, key, state as _);
                 }
             },
