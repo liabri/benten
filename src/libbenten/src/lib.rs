@@ -56,8 +56,6 @@ pub enum BentenResponse {
 pub enum BentenError {
     #[error("io error `{0}`")]
     IoError(#[from] std::io::Error),
-    #[error("serde_yaml error `{0}`")]
-    SerdeYamlError(#[from] serde_yaml::Error),
     #[error("csv parse error `{0}`")]
     CsvParseError(#[from] csv::Error),
     #[error("zmerald error")]

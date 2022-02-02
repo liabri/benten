@@ -16,9 +16,7 @@ thiserror = "1.0.30"
 xdg = "2.4.0"
 log = "0.4.14"
 itertools = "0.10.3"
-
 #https://crates.io/crates/ahash
-serde_yaml = "0.8.21"
 
 [dev-dependencies]
 criterion = { version = "0.3.4", features = ["html_reports"] }
