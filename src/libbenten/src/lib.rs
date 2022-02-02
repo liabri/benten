@@ -8,7 +8,7 @@ use methods::Global;
 use thiserror::Error;
 
 pub struct BentenEngine {
-    mode: RefCell<Box<ModeHouse>>,
+    global: Global,
     cfg: BentenConfig,
 }
 
@@ -17,31 +17,33 @@ impl BentenEngine {
         //rid id of non visible characters such as "\n"
         cfg.id.retain(|c| !c.is_whitespace());
 
+        let global = Global::new(&cfg.id, &cfg.dir)
+            .map_err(|_| panic!("layout `{}` not found", &cfg.id)).unwrap();
+
         BentenEngine {
-            mode: RefCell::new(Box::new(ModeHouse::new(&cfg.id, &cfg.dir)
-                .map_err(|_| panic!("Mode `{}` not found", &cfg.id.replace("\n", ""))).unwrap())),
+            global,
             cfg
         }
-
-        //human-panic crate
     }
 
     pub fn on_key_press(&mut self, key_code: u16) -> BentenResponse {
-        self.mode.borrow_mut().on_key_press(key_code)
+        self.global.methods.get_mut(self.global.current_method)
+            .unwrap().on_key_press(key_code)
     }
 
     pub fn on_key_release(&mut self, key_code: u16) -> BentenResponse {
-        self.mode.borrow_mut().on_key_release(key_code)
+        self.global.methods.get_mut(self.global.current_method)
+            .unwrap().on_key_release(key_code)
     }
 
-    pub fn set_mode(&mut self, name: &str) {
-        self.mode = RefCell::new(Box::new(ModeHouse::new(name, &self.cfg.dir)
-            .map_err(|_| panic!("Mode `{}` not found", &name)).unwrap()));
+    pub fn set_layout(&mut self, name: &str) {
+        self.global = Global::new(name, &self.cfg.dir)
+            .map_err(|_| panic!("layout `{}` not found", &name)).unwrap();
     }
 
     pub fn reset(&mut self) {
-        self.mode.borrow_mut().reset();
-    }
+        self.global.methods.get_mut(self.global.current_method)
+            .unwrap().reset()    }
 }
 
 #[derive(Debug, PartialEq)]

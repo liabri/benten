@@ -155,8 +155,8 @@ impl State {
 
                     WATCHER_INOTIFY => {
                         println!("Woken up by inotify token");
-                        let new_mode = std::fs::read_to_string(&self.ipc_path).unwrap();
-                        self.context.engine.set_mode(&new_mode);
+                        let new_layout = std::fs::read_to_string(&self.ipc_path).unwrap();
+                        self.context.engine.set_layout(&new_layout);
                         // self.watcher.handle_events();
                     },
 
