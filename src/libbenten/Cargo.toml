@@ -9,13 +9,16 @@ path = "src/lib.rs"
 crate-type = ["rlib"]
 
 [dependencies]
-csv = "1.1.6"
 serde = { version = "1.0", features = ["derive"] }
-serde_yaml = "0.8.21"
+zmerald = { path="../../../zmerald" }
+csv = "1.1.6"
 thiserror = "1.0.30"
 xdg = "2.4.0"
 log = "0.4.14"
+itertools = "0.10.3"
+
 #https://crates.io/crates/ahash
+serde_yaml = "0.8.21"
 
 [dev-dependencies]
 criterion = { version = "0.3.4", features = ["html_reports"] }

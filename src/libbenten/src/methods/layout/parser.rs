@@ -1,49 +1,49 @@
-use serde::{Deserialize};
+use serde::Deserialize;
 use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
-use std::collections::HashSet;
-use std::collections::HashMap;
+use std::collections::{ HashMap, HashSet };
+
 use crate::BentenError;
+use crate::methods::GenericMethodTrait;
 
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct Layout {
-	pub id: String,
-	pub encoding: String,
-	pub settings: Option<Settings>,
-	pub modifiers: Vec<Modifier>,
-	pub special_keys: Option<HashMap<u16, Vec<String>>>,
-	pub keys: Option<HashMap<u16, Vec<Option<String>>>>,
+    pub id: String,
+    
+    pub modifiers: Vec<Modifier>,                            //will use `Name` tag to associate levels with modifiers on deserialise 
+    pub levels: HashMap<u16, HashSet<ModifierIndex>>,        //<Level, Modifiers> # pointing to layout.modifiers
+
+    pub specs: Option<HashMap<u16, Vec<Option<String>>>>,    //<KeyCode, SpecialName>
+    pub keys: HashMap<u16, Vec<Option<String>>>,            //<KeyCode, Character.s>
+    pub bindings: HashMap<u16, Vec<Option<Function>>>         //<KeyCode, Functions>
 }
 
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct Settings {
-	pub fill_empty_lock: bool,
-}
+pub type ModifierIndex = usize;
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Clone, Deserialize)]
 pub struct Modifier {
-	pub level: u16,
-	pub r#type: ModifierType,
-	pub key_codes: HashSet<u16>,
+    pub kind: ModifierKind,
+    pub key_codes: HashSet<u16>
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Deserialize)]
-#[serde(rename_all = "lowercase")]
-pub enum ModifierType {
-	Set,
-	Lock,
-	Latch
+#[derive(Debug, Hash, Clone, Copy, PartialEq, Deserialize)]
+pub enum ModifierKind {
+    Set,
+    Lock,
+    Latch
+}
+
+#[derive(Debug, PartialEq, Deserialize)]
+pub enum Function {
+    ChangeMethodTo(String)
 }
 
 impl Layout {
-	pub fn new(id: &str, base_dir: &Path) -> Result<Layout, BentenError> {
-		let path = base_dir.join("layouts").join(id).with_extension("layout.yaml");
-		let file = File::open(path)?;
-	    let reader = BufReader::new(file);
-		Ok(serde_yaml::from_reader(reader)?)
-	}
+    pub fn new(id: &str, base_dir: &Path) -> Result<Self, BentenError> {
+        let path = base_dir.join("layouts").join(id).with_extension("layout.zm");
+        let file = File::open(path)?;
+        let reader = BufReader::new(file);
+        Ok(zmerald::from_reader(reader)?)
+    }
 }
