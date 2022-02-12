@@ -8,14 +8,14 @@ pub fn main() {
         Command::Set{name} => {
             let file_path = xdg::BaseDirectories::with_prefix("benten").unwrap().get_data_home().join("current_layout");
             std::fs::create_dir_all(file_path.parent().unwrap()).unwrap();
-            std::fs::write(file_path, name);
+            std::fs::write(file_path, name).unwrap();
         },
         
         Command::Reload =>{
             let file_path = xdg::BaseDirectories::with_prefix("benten").unwrap().get_data_home().join("current_layout");
             let current_layout = std::fs::read_to_string(&file_path).unwrap();
             std::fs::create_dir_all(file_path.parent().unwrap()).unwrap();
-            std::fs::write(file_path, current_layout);
+            std::fs::write(file_path, current_layout).unwrap();
         },
 
         Command::Current => {

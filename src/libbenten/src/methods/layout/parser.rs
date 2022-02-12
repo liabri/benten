@@ -5,7 +5,6 @@ use std::path::Path;
 use std::collections::{ HashMap, HashSet };
 
 use crate::BentenError;
-use crate::methods::GenericMethodTrait;
 
 #[derive(Debug, Deserialize)]
 pub struct Layout {

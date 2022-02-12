@@ -3,7 +3,7 @@ use context::BentenContext;
 
 use benten_ipc::{ Inotify, WatchRequest };
 use std::path::PathBuf;
-use std::sync::mpsc::{ Receiver, TryRecvError, sync_channel, channel };
+use std::sync::mpsc::{ Receiver, sync_channel, channel };
 
 use mio::{ event::Source, unix::SourceFd, Events as MioEvents, Interest, Poll, Waker, Token };
 use mio_timerfd::{ ClockId, TimerFd };

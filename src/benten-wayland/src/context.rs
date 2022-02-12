@@ -27,7 +27,7 @@ pub struct BentenContext {
 pub enum ModifierState {
     CONTROL = 0x4,
     SUPER = 0x40,
-    LALT = 0x8,
+    // LALT = 0x8,
 }
 
 #[derive(PartialEq)]

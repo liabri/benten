@@ -1,6 +1,5 @@
 mod methods;
 
-use std::cell::RefCell;
 use std::path::PathBuf;
 use methods::Global;
 use thiserror::Error;
@@ -15,8 +14,8 @@ impl BentenEngine {
         //rid id of non visible characters such as "\n"
         cfg.id.retain(|c| !c.is_whitespace());
 
-        let global = Global::new(&cfg.id, &cfg.dir)
-            .map_err(|_| panic!("layout `{}` not found", &cfg.id)).unwrap();
+        let global = Global::new(&cfg.id, &cfg.dir).unwrap();
+            // .map_err(|_| panic!("layout `{}` not found", &cfg.id)).unwrap();
 
         BentenEngine { global, cfg }
     }
@@ -44,8 +43,8 @@ impl BentenEngine {
 pub enum BentenResponse {
     Commit(String),
     Suggest(String),
-    Null, //NoChar aka KeyCode is not there
-    Empty, //Was found but didnt have anything to return, intentional (such as functions like HAN key)
+    Null, //KeyCode is not defined
+    Empty, //KeyCode found but didnt have anything to return, intentional (like function keys eg. Han key)
 }
 
 #[derive(Error, Debug)]
