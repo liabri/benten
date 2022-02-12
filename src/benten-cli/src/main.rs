@@ -6,20 +6,20 @@ pub fn main() {
         Command::Start => {},
         Command::Kill => {},
         Command::Set{name} => {
-            let file_path = xdg::BaseDirectories::with_prefix("benten").unwrap().get_data_home().join("current_mode");
+            let file_path = xdg::BaseDirectories::with_prefix("benten").unwrap().get_data_home().join("current_layout");
             std::fs::create_dir_all(file_path.parent().unwrap()).unwrap();
             std::fs::write(file_path, name);
         },
         
         Command::Reload =>{
-            let file_path = xdg::BaseDirectories::with_prefix("benten").unwrap().get_data_home().join("current_mode");
-            let current_mode = std::fs::read_to_string(&file_path).unwrap();
+            let file_path = xdg::BaseDirectories::with_prefix("benten").unwrap().get_data_home().join("current_layout");
+            let current_layout = std::fs::read_to_string(&file_path).unwrap();
             std::fs::create_dir_all(file_path.parent().unwrap()).unwrap();
-            std::fs::write(file_path, current_mode);
+            std::fs::write(file_path, current_layout);
         },
 
         Command::Current => {
-            let file_path = xdg::BaseDirectories::with_prefix("benten").unwrap().get_data_home().join("current_mode");
+            let file_path = xdg::BaseDirectories::with_prefix("benten").unwrap().get_data_home().join("current_layout");
             println!("{}", std::fs::read_to_string(&file_path).unwrap());
         },
 
@@ -56,18 +56,18 @@ pub enum Command {
     Kill,
 
     #[structopt(no_version, global_settings = &[AppSettings::DisableVersion])]
-    ///Set specific mode
+    ///Set specific layout
     Set { name: String },
 
     #[structopt(alias = "r", no_version, global_settings = &[AppSettings::DisableVersion])]
-    ///Reload current mode
+    ///Reload current layout
     Reload,    
 
     #[structopt(alias = "l", no_version, global_settings = &[AppSettings::DisableVersion])]
-    ///List all available modes
+    ///List all available layouts
     List,
 
     #[structopt(alias = "c", no_version, global_settings = &[AppSettings::DisableVersion])]
-    ///Current mode
+    ///Current layout
     Current,      
 }

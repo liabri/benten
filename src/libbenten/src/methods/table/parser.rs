@@ -14,7 +14,7 @@ pub struct Table {
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 pub struct Entry {
 	pub character: char,
-	pub sequence: String,
+	pub sequence: String, //maybe try a tiny_string as this is needlessly large
 }
 
 impl Table {
@@ -22,9 +22,7 @@ impl Table {
 		let path = base_dir.join("tables").join(id).with_extension("dict");
 		let file = File::open(path)?;
 	    let reader = BufReader::new(file);
-
-	    let mut entries: Vec<Entry> = csv::Reader::from_reader(reader).deserialize()
-	    	.map(|x| x.unwrap()).collect();
+	    let entries = csv::Reader::from_reader(reader).deserialize().collect::<Result<Vec<_>, _>>()?;
 
 		Ok(Self {
 			id: id.to_string(),

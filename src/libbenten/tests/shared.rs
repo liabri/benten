@@ -18,7 +18,10 @@ macro_rules! define_layout_test {
         #[allow(dead_code)]
         #[track_caller]
         fn test_input(keys: &[(u16, BentenResponse)]) {
-            let context = BentenEngine::new(&BentenConfig { id: $layout.to_string() });
+            let context = BentenEngine::new(BentenConfig { 
+                id: $layout.to_string(),
+                ..BentenConfig::default()
+            });
             test_input_impl(context, keys);
         }
     };

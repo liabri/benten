@@ -43,7 +43,7 @@ const WAKE_TOKEN: Token = Token(2);
 const WATCHER_INOTIFY: Token = Token(3);
 
 impl State {
-    pub fn new(ipc_path: PathBuf, mode: &str) -> Self {
+    pub fn new(ipc_path: PathBuf, layout: &str) -> Self {
         let display = Display::connect_to_env().map_err(|e| log::error!("Failed to connect to wayland display: {}", e)).unwrap();
         let mut event_queue = display.create_event_queue();
         let attached_display = display.attach(event_queue.token());
@@ -103,7 +103,7 @@ impl State {
         waker.wake().unwrap();
 
         // Initialize context
-        let mut context = BentenContext::new(mode, vk, im, timer);
+        let mut context = BentenContext::new(layout, vk, im, timer);
         event_queue.sync_roundtrip(&mut context, |_, _, _| ()).unwrap();
         log::info!("Server successfully initialised !");
 
