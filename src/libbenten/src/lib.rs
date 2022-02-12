@@ -18,10 +18,7 @@ impl BentenEngine {
         let global = Global::new(&cfg.id, &cfg.dir)
             .map_err(|_| panic!("layout `{}` not found", &cfg.id)).unwrap();
 
-        BentenEngine {
-            global,
-            cfg
-        }
+        BentenEngine { global, cfg }
     }
 
     pub fn on_key_press(&mut self, key_code: u16) -> BentenResponse {
@@ -35,8 +32,7 @@ impl BentenEngine {
     }
 
     pub fn set_layout(&mut self, name: &str) {
-        self.global = Global::new(name, &self.cfg.dir)
-            .map_err(|_| panic!("layout `{}` not found", &name)).unwrap();
+        self.global = Global::new(name, &self.cfg.dir).unwrap();
     }
 
     pub fn reset(&mut self) {
