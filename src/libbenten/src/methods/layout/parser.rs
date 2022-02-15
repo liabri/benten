@@ -20,6 +20,15 @@ pub struct Layout {
 
 pub type ModifierIndex = usize;
 
+/* ???
+pub type KeyCodes = HashSet<u16>;
+pub enum Modifier {
+    Set(KeyCodes),
+    Lock(KeyCodes),
+    Latch(KeyCodes),
+}
+??? */
+
 #[derive(Debug, Clone, Deserialize)]
 pub struct Modifier {
     pub kind: ModifierKind,
@@ -39,7 +48,7 @@ pub enum Function {
 }
 
 impl Layout {
-    pub fn new(id: &str, base_dir: &Path) -> Result<Self, BentenError> {
+    pub fn from_path(id: &str, base_dir: &Path) -> Result<Self, BentenError> {
         let path = base_dir.join("layouts").join(id).with_extension("layout.zm");
         let file = File::open(path)?;
         let reader = BufReader::new(file);
