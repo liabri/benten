@@ -1,5 +1,5 @@
 pub mod parser;
-use parser::*;
+pub use parser::*;
 
 use crate::{ BentenResponse, BentenError };
 use crate::methods::GenericMethodTrait;

@@ -1,8 +1,8 @@
 pub mod layout;
-use layout::LayoutMethod;
+use layout::{ Layout, LayoutMethod };
 
 pub mod table;
-use table::TableMethod;
+use table::{ Table, TableMethod };
 
 use crate::{ BentenResponse, BentenError };
 use serde::{ Deserialize, Deserializer };
@@ -22,7 +22,7 @@ pub trait GenericMethodTrait {
 pub struct Global {
     #[serde(skip)]
     pub id: String,
-    #[serde(deserialize_with = "from_id")]
+    #[serde(deserialize_with = "from_methods")]
     pub methods: Vec<Box<dyn GenericMethodTrait>>, // 0 = main method, the rest are part of the main method
     #[serde(skip)]
     pub current_method: usize,
@@ -66,28 +66,23 @@ impl Global {
     }
 }
 
-fn from_id<'de, D>(deserializer: D) -> Result<Vec<Box<dyn GenericMethodTrait>>, D::Error>
+fn from_methods<'de, D>(deserializer: D) -> Result<Vec<Box<dyn GenericMethodTrait>>, D::Error>
 where D: Deserializer<'de> {
     let values: Vec<zmerald::value::Value> = Vec::deserialize(deserializer)?;
 
     let mut out: Vec<Box<dyn GenericMethodTrait>> = Vec::new();
     for value in values {
-        if let Ok(layout) = value.into_rust::<crate::methods::layout::parser::Layout>() {
-            out.push(Box::new(LayoutMethod::from(layout)));
-        }
+        if let Ok(table) = value.clone().into_rust::<Table>() {
+            if let Ok(table_method) = TableMethod::try_from(table) {
+                out.push(Box::new(table_method));
+            }
+        } else {
+            match value.into_rust::<Layout>() {
+                Ok(layout) => out.push(Box::new(LayoutMethod::from(layout))),
+                Err(e) => return Err(serde::de::Error::custom(format!("error while parsing layout `{}`", e)))
+            }
+        } 
     }
-
-    // let mut out: Vec<Box<dyn GenericMethodTrait>> = Vec::new();
-    // for value in values {
-    //     if let Ok(table) = TableMethod::new(&value, &base_dir) {
-    //         out.push(Box::new(table));
-    //     } else {
-    //         match LayoutMethod::new(&value, &base_dir) {
-    //             Ok(layout) => out.push(Box::new(layout)),
-    //             Err(e) => return Err(serde::de::Error::custom(format!("could not load layout of id `{}`: {}", value, e)))
-    //         }
-    //     } 
-    // }
 
     Ok(out)
 }

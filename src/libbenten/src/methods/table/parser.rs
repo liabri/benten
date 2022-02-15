@@ -18,7 +18,7 @@ pub struct Entry {
 }
 
 impl Table {
-	pub fn new(id: &str, base_dir: &Path) -> Result<Table, BentenError> {
+	pub fn from_path(id: &str, base_dir: &Path) -> Result<Table, BentenError> {
 		let path = base_dir.join("tables").join(id).with_extension("dict");
 		let file = File::open(path)?;
 	    let reader = BufReader::new(file);
