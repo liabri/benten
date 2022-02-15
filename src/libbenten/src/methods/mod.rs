@@ -68,34 +68,26 @@ impl Global {
 
 fn from_id<'de, D>(deserializer: D) -> Result<Vec<Box<dyn GenericMethodTrait>>, D::Error>
 where D: Deserializer<'de> {
-    // TEMPORARY
-    let base_dir = xdg::BaseDirectories::with_prefix("benten").unwrap().get_config_home();
-
-    let values: Vec<String> = Vec::deserialize(deserializer)?;
+    let values: Vec<zmerald::value::Value> = Vec::deserialize(deserializer)?;
 
     let mut out: Vec<Box<dyn GenericMethodTrait>> = Vec::new();
     for value in values {
-        if let Ok(table) = TableMethod::new(&value, &base_dir) {
-            out.push(Box::new(table));
-        } else {
-            match LayoutMethod::new(&value, &base_dir) {
-                Ok(layout) => out.push(Box::new(layout)),
-                Err(e) => return Err(serde::de::Error::custom(format!("could not load layout of id `{}`: {}", value, e)))
-            }
-        } 
+        if let Ok(layout) = value.into_rust::<crate::methods::layout::parser::Layout>() {
+            out.push(Box::new(LayoutMethod::from(layout)));
+        }
     }
+
+    // let mut out: Vec<Box<dyn GenericMethodTrait>> = Vec::new();
+    // for value in values {
+    //     if let Ok(table) = TableMethod::new(&value, &base_dir) {
+    //         out.push(Box::new(table));
+    //     } else {
+    //         match LayoutMethod::new(&value, &base_dir) {
+    //             Ok(layout) => out.push(Box::new(layout)),
+    //             Err(e) => return Err(serde::de::Error::custom(format!("could not load layout of id `{}`: {}", value, e)))
+    //         }
+    //     } 
+    // }
 
     Ok(out)
-}
-
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn global_parse() {
-        let g = Global::new("japanese", &xdg::BaseDirectories::with_prefix("benten").unwrap().get_config_home()).unwrap();
-        assert_eq!(&g.id, "japanese");
-    }
 }

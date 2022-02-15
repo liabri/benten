@@ -25,7 +25,7 @@ impl GenericMethodTrait for TableMethod {
     fn new(id: &str, path: &Path) -> Result<Self, BentenError> {
         Ok(TableMethod {
             table: Table::new(id, &path)?,
-            layout: Layout::new(id, &path)?,
+            layout: Layout::from_path(id, &path)?,
             modifiers_pressed: HashSet::new(),
             relative_entries: Vec::new(),
             key_sequence: String::with_capacity(5),

@@ -13,9 +13,22 @@ pub struct LayoutMethod {
     pub modifiers_pressed: HashSet<u16>,
 }
 
+//maybe rewrite GenericMethodTrait using actual Generics which will implement basic layout stuff, not like 
+//anyone needs a method which cannot function as a layout. the above struct `LayoutMethod` represents the
+//most basic method.
+
+impl From<Layout> for LayoutMethod {
+    fn from(layout: Layout) -> Self {
+        LayoutMethod {
+            layout,
+            modifiers_pressed: HashSet::new(),
+        }
+    }  
+}
+
 impl GenericMethodTrait for LayoutMethod {
     fn new(id: &str, path: &Path) -> Result<Self, BentenError> {
-        let layout: Layout = Layout::new(id, &path)?;
+        let layout: Layout = Layout::from_path(id, &path)?;
 
         Ok(LayoutMethod {
             layout,
