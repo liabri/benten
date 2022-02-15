@@ -1,5 +1,5 @@
 pub mod parser;
-use parser::*;
+pub use parser::*;
 
 use std::collections::HashSet;
 use crate::methods::GenericMethodTrait;
@@ -20,11 +20,29 @@ pub struct TableMethod {
 	pub index: usize
 }
 
+impl TryFrom<Table> for TableMethod {
+    type Error = BentenError;
+
+    fn try_from(table: Table) -> Result<Self, Self::Error> {
+        //temporary
+        let path = xdg::BaseDirectories::with_prefix("benten").unwrap().get_config_home();
+
+        Ok(TableMethod {
+            layout: Layout::from_path(&table.id, &path)?,
+            table,
+            modifiers_pressed: HashSet::new(),
+            relative_entries: Vec::new(),
+            key_sequence: String::with_capacity(5),
+            index: 0
+        })
+    }  
+}
+
 //feature: copy previous character key bind, kinda like a repition mark, will need a var "previous character" buf in TableMethod
 impl GenericMethodTrait for TableMethod {
     fn new(id: &str, path: &Path) -> Result<Self, BentenError> {
         Ok(TableMethod {
-            table: Table::new(id, &path)?,
+            table: Table::from_path(id, &path)?,
             layout: Layout::from_path(id, &path)?,
             modifiers_pressed: HashSet::new(),
             relative_entries: Vec::new(),
