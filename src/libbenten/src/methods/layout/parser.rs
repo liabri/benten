@@ -15,7 +15,7 @@ pub struct Layout {
 
     pub specs: Option<HashMap<u16, Vec<Option<String>>>>,    //<KeyCode, SpecialName>
     pub keys: HashMap<u16, Vec<Option<String>>>,            //<KeyCode, Character.s>
-    pub bindings: HashMap<u16, Vec<Option<Function>>>         //<KeyCode, Functions>
+    pub bindings: Option<HashMap<u16, Vec<Option<Function>>>>         //<KeyCode, Functions>
 }
 
 pub type ModifierIndex = usize;
