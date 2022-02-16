@@ -2,8 +2,8 @@ use criterion::{ criterion_group, criterion_main, Criterion };
 use benten::{ BentenEngine, BentenConfig };
 
 fn simple(c: &mut Criterion) {
-    let config = BentenConfig { id:"kana".to_string() };
-    let mut engine = BentenEngine::new(&config);
+    let config = BentenConfig { id:"kana".to_string(), ..BentenConfig::default() };
+    let mut engine = BentenEngine::new(config);
 
     c.bench_function("simple 5", |b| {
         b.iter(|| {
