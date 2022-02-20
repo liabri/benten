@@ -6,6 +6,7 @@ use table::{ Table, TableMethod };
 
 use crate::{ BentenResponse, BentenError };
 use serde::{ Deserialize, Deserializer };
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
@@ -23,9 +24,8 @@ pub struct Global {
     #[serde(skip)]
     pub id: String,
     #[serde(deserialize_with = "from_methods")]
-    pub methods: Vec<Box<dyn GenericMethodTrait>>, // 0 = main method, the rest are part of the main method
-    #[serde(skip)]
-    pub current_method: usize,
+    pub methods: HashMap<String, Box<dyn GenericMethodTrait>>,
+    pub current_method: String,
 }
 
 impl Global {
@@ -34,7 +34,6 @@ impl Global {
         let file = File::open(&path)?;
         let reader = BufReader::new(file);
 
-        // Ok(zmerald::de::from_reader(reader)?)
         match zmerald::de::from_reader::<_, Global>(reader) {
             Ok(mut g) => {
                 g.id = id.to_string();
@@ -58,27 +57,29 @@ impl Global {
 
 impl Global {
     fn from(id: &str, method: Box<dyn GenericMethodTrait>) -> Self {
-        let mut methods = Vec::new();
-        methods.push(method);
+        let current_method = method.id().to_string();
+        let mut methods = HashMap::new();
+        methods.insert(current_method.clone(), method);
         Self {
             id: id.to_string(),
             methods,
-            current_method: 0,
+            current_method: current_method,
         }
     }
 }
 
-fn from_methods<'de, D>(deserializer: D) -> Result<Vec<Box<dyn GenericMethodTrait>>, D::Error>
+fn from_methods<'de, D>(deserializer: D) -> Result<HashMap<String, Box<dyn GenericMethodTrait>>, D::Error>
 where D: Deserializer<'de> {
     let values: Vec<Layout> = Vec::deserialize(deserializer)?;
 
-    let mut out: Vec<Box<dyn GenericMethodTrait>> = Vec::new();
+    let mut out: HashMap<String, Box<dyn GenericMethodTrait>> = HashMap::new();
     for value in values {
         match value.kind {
-            LayoutKind::Layout => out.push(Box::new(LayoutMethod::from(value))),
+            LayoutKind::Layout => { out.insert(value.id.to_string(), Box::new(LayoutMethod::from(value))); },
             LayoutKind::Table => {
+                let value_name = value.id.to_string();
                 if let Ok(table_method) = TableMethod::try_from(value) {
-                    out.push(Box::new(table_method));
+                    out.insert(value_name, Box::new(table_method));
                 }
             },
             LayoutKind::Hangeul => {}

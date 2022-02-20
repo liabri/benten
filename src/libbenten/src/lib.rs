@@ -21,12 +21,12 @@ impl BentenEngine {
     }
 
     pub fn on_key_press(&mut self, key_code: u16) -> BentenResponse {
-        self.global.methods.get_mut(self.global.current_method)
+        self.global.methods.get_mut(&self.global.current_method)
             .unwrap().on_key_press(key_code)
     }
 
     pub fn on_key_release(&mut self, key_code: u16) -> BentenResponse {
-        self.global.methods.get_mut(self.global.current_method)
+        self.global.methods.get_mut(&self.global.current_method)
             .unwrap().on_key_release(key_code)
     }
 
@@ -35,7 +35,7 @@ impl BentenEngine {
     }
 
     pub fn reset(&mut self) {
-        self.global.methods.get_mut(self.global.current_method)
+        self.global.methods.get_mut(&self.global.current_method)
             .unwrap().reset()    }
 }
 
