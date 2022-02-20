@@ -43,7 +43,7 @@ impl BentenEngine {
 pub enum BentenResponse {
     Commit(String),
     Suggest(String),
-    Null, //KeyCode is not defined
+    Undefined, //KeyCode is not defined
     Empty, //KeyCode found but didnt have anything to return, intentional (like function keys eg. Han key)
 }
 

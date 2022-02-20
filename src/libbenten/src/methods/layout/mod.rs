@@ -39,15 +39,17 @@ impl GenericMethodTrait for LayoutMethod {
     fn on_key_press(&mut self, key_code: u16) -> BentenResponse {
         if let Some(modifier) = self.is_get_modifier(&key_code) {
             self.on_modifier_press(&modifier, &key_code);
-            return BentenResponse::Null;
+            return BentenResponse::Undefined;
         }
             
         let value = self.calculate_char(&key_code);
 
+        // Check for bindings
+
         if let Some(value) = value {
             BentenResponse::Commit(value)
         } else {
-            BentenResponse::Null
+            BentenResponse::Undefined
         }
     }
 
@@ -56,7 +58,7 @@ impl GenericMethodTrait for LayoutMethod {
             self.on_modifier_release(&modifier, &key_code);
         }
 
-        BentenResponse::Null
+        BentenResponse::Undefined
     }
 
     fn id(&self) -> &str {

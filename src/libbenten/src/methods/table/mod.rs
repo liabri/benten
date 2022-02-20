@@ -72,7 +72,7 @@ impl GenericMethodTrait for TableMethod {
     fn on_key_press(&mut self, key_code: u16) -> BentenResponse {
         if let Some(modifier) = self.is_get_modifier(&key_code) {
             self.on_modifier_press(&modifier, &key_code);
-            return BentenResponse::Null;
+            return BentenResponse::Undefined;
         }
 
         let mut commit = false;
@@ -95,7 +95,7 @@ impl GenericMethodTrait for TableMethod {
                 return BentenResponse::Suggest(value)
             }
         } else {
-            return BentenResponse::Null
+            return BentenResponse::Undefined
         }
     }
 
@@ -104,7 +104,7 @@ impl GenericMethodTrait for TableMethod {
             self.on_modifier_release(&modifier, &key_code);
         }
 
-        return BentenResponse::Null
+        return BentenResponse::Undefined
     }
 
     fn id(&self) -> &str {
