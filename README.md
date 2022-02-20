@@ -17,5 +17,5 @@ Named after the Japanese Buddhist Goddess "Benzaiten" (弁才天) whom stands fo
 
 ## configuration
 As of now all the configuration is done in `$XDG_CONFIG_HOME`, consisting of two folders: 
-1. `layouts`: key map and layout configuration, defined in `*.layout.yaml`;
-2. `tables`: tables for table-lookup (still requires a layout file), defined in `*.dict.yaml`;
+1. `layouts`: key map and layout configuration, defined in `*.layout.zm`;
+2. `tables`: tables for table-lookup (still requires a layout file), defined in `*.dict.zm`;
