@@ -1,5 +1,6 @@
 {
 	id: Kana,
+	kind: Layout,
 	specs: None,
 	bindings: None,
 
@@ -7,7 +8,7 @@
 		{ kind: Set, key_codes: [ 50 ] },
 		{ kind: Set, key_codes: [ 62 ] },
 		{ kind: Lock, key_codes: [ 66 ] },
-		{ kind: Set, key_codes: [ 108 ] },
+		{ kind: Set, key_codes: [ 108 ] }
 	],
 
 	levels: {
@@ -16,7 +17,7 @@
 		3: [ 3 ],
 		4: [ 0, 3 ],
 		5: [ 2 ],
-		6: [ 2, 0 ],
+		6: [ 2, 0 ]
 	},	
 
 	keys: {
@@ -69,6 +70,6 @@
 		58: [		  お	, 		  ぉ	, 		  〚	, 		  〛	, 		  オ	, 		 ォ	 ],
 		59: [		  ほ	, 		  、	, 		  〈	, 		  《	, 		  ホ	,       None ],
 		60: [		  ら	, 		  。	, 		  〉	, 		  》	, 		  ラ	,       None ],
-		61: [		  ま	, 		  ？	, 		   ‘, 		   ’, 		  マ	,       None ],
+		61: [		  ま	, 		  ？	, 		   ‘, 		   ’, 		  マ	,       None ]
 	}
 }
