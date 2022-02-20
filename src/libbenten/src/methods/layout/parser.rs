@@ -6,9 +6,10 @@ use std::collections::{ HashMap, HashSet };
 
 use crate::BentenError;
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize)]
 pub struct Layout {
     pub id: String,
+    pub kind: LayoutKind,
     
     pub modifiers: Vec<Modifier>,                            //will use `Name` tag to associate levels with modifiers on deserialise 
     pub levels: HashMap<u16, HashSet<ModifierIndex>>,        //<Level, Modifiers> # pointing to layout.modifiers
@@ -16,6 +17,13 @@ pub struct Layout {
     pub specs: Option<HashMap<u16, Vec<Option<String>>>>,    //<KeyCode, SpecialName>
     pub keys: HashMap<u16, Vec<Option<String>>>,            //<KeyCode, Character.s>
     pub bindings: Option<HashMap<u16, Vec<Option<Function>>>>         //<KeyCode, Functions>
+}
+
+#[derive(Deserialize)]
+pub enum LayoutKind {
+    Layout,
+    Table,
+    Hangeul,
 }
 
 pub type ModifierIndex = usize;
@@ -52,6 +60,6 @@ impl Layout {
         let path = base_dir.join("layouts").join(id).with_extension("layout.zm");
         let file = File::open(path)?;
         let reader = BufReader::new(file);
-        Ok(zmerald::from_reader(reader)?)
+        Ok(zmerald::from_reader(reader).unwrap())
     }
 }

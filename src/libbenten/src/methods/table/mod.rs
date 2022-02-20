@@ -38,6 +38,24 @@ impl TryFrom<Table> for TableMethod {
     }  
 }
 
+impl TryFrom<Layout> for TableMethod {
+    type Error = BentenError;
+
+    fn try_from(layout: Layout) -> Result<Self, Self::Error> {
+        //temporary
+        let path = xdg::BaseDirectories::with_prefix("benten").unwrap().get_config_home();
+
+        Ok(TableMethod {
+            table: Table::from_path(&layout.id, &path)?,
+            layout,
+            modifiers_pressed: HashSet::new(),
+            relative_entries: Vec::new(),
+            key_sequence: String::with_capacity(5),
+            index: 0
+        })
+    }  
+}
+
 //feature: copy previous character key bind, kinda like a repition mark, will need a var "previous character" buf in TableMethod
 impl GenericMethodTrait for TableMethod {
     fn new(id: &str, path: &Path) -> Result<Self, BentenError> {
