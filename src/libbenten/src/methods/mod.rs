@@ -20,7 +20,7 @@ pub trait GenericMethodTrait {
 }
 
 #[derive(Deserialize)]
-pub struct Global {
+pub struct State {
     #[serde(skip)]
     pub id: String,
     #[serde(deserialize_with = "from_methods")]
@@ -28,13 +28,13 @@ pub struct Global {
     pub current_method: String,
 }
 
-impl Global {
+impl State {
     pub fn new(id: &str, base_dir: &Path) -> Result<Self, BentenError> {
         let path = base_dir.join("layouts").join(id).with_extension("layout.zm");
         let file = File::open(&path)?;
         let reader = BufReader::new(file);
 
-        match zmerald::de::from_reader::<_, Global>(reader) {
+        match zmerald::de::from_reader::<_, State>(reader) {
             Ok(mut g) => {
                 g.id = id.to_string();
                 return Ok(g);
@@ -43,10 +43,10 @@ impl Global {
             // this allows the config to define a single method not within a global struct, simpler single methods
             Err(e) => {
                 if let Ok(table) = TableMethod::new(id, &base_dir) {
-                    return Ok(Global::from(id, Box::new(table)));
+                    return Ok(State::from(id, Box::new(table)));
                 } else {
                     match LayoutMethod::new(id, &base_dir) {
-                        Ok(layout) => return Ok(Global::from(id, Box::new(layout))),
+                        Ok(layout) => return Ok(State::from(id, Box::new(layout))),
                         Err(_) => panic!("{}", e)//return Err(BentenError::ZmeraldError(e))
                     }
                 }     
@@ -55,7 +55,7 @@ impl Global {
     }
 }
 
-impl Global {
+impl State {
     fn from(id: &str, method: Box<dyn GenericMethodTrait>) -> Self {
         let current_method = method.id().to_string();
         let mut methods = HashMap::new();

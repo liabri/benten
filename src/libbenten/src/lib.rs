@@ -1,11 +1,11 @@
 mod methods;
 
 use std::path::PathBuf;
-use methods::Global;
+use methods::State;
 use thiserror::Error;
 
 pub struct BentenEngine {
-    global: Global,
+    state: State,
     cfg: BentenConfig,
 }
 
@@ -13,28 +13,28 @@ impl BentenEngine {
     pub fn new(mut cfg: BentenConfig) -> Self {
         //rid id of non visible characters such as "\n"
         cfg.id.retain(|c| !c.is_whitespace());
-        let global = Global::new(&cfg.id, &cfg.dir).unwrap();
+        let state = State::new(&cfg.id, &cfg.dir).unwrap();
             // .map_err(|_| panic!("layout `{}` not found", &cfg.id)).unwrap();
 
-        BentenEngine { global, cfg }
+        BentenEngine { state, cfg }
     }
 
     pub fn on_key_press(&mut self, key_code: u16) -> BentenResponse {
-        self.global.methods.get_mut(&self.global.current_method)
+        self.state.methods.get_mut(&self.state.current_method)
             .unwrap().on_key_press(key_code)
     }
 
     pub fn on_key_release(&mut self, key_code: u16) -> BentenResponse {
-        self.global.methods.get_mut(&self.global.current_method)
+        self.state.methods.get_mut(&self.state.current_method)
             .unwrap().on_key_release(key_code)
     }
 
     pub fn set_layout(&mut self, name: &str) {
-        self.global = Global::new(name, &self.cfg.dir).unwrap();
+        self.state = State::new(name, &self.cfg.dir).unwrap();
     }
 
     pub fn reset(&mut self) {
-        self.global.methods.get_mut(&self.global.current_method)
+        self.state.methods.get_mut(&self.state.current_method)
             .unwrap().reset()    }
 }
 
