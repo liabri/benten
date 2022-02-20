@@ -144,7 +144,7 @@ impl BentenContext {
                                     self.im.set_preedit_string(s, 0, len as _);
                                 },
 
-                                BentenResponse::Null => {
+                                BentenResponse::Undefined => {
                                     self.vk.key(time, key, state as _);
                                     return;
                                 }
