@@ -13,7 +13,6 @@ impl BentenEngine {
     pub fn new(mut cfg: BentenConfig) -> Self {
         //rid id of non visible characters such as "\n"
         cfg.id.retain(|c| !c.is_whitespace());
-
         let global = Global::new(&cfg.id, &cfg.dir).unwrap();
             // .map_err(|_| panic!("layout `{}` not found", &cfg.id)).unwrap();
 
@@ -44,7 +43,7 @@ pub enum BentenResponse {
     Commit(String),
     Suggest(String),
     Undefined, //KeyCode is not defined
-    Empty, //KeyCode found but didnt have anything to return, intentional (like function keys eg. Han key)
+    Empty, //KeyCode found but didnt have anything to return, intentional (like special keys eg. Han key)
 }
 
 #[derive(Error, Debug)]
