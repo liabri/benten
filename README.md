@@ -16,7 +16,6 @@ Named after the Japanese Buddhist Goddess "Benzaiten" (弁才天) whom stands fo
 - BTreeMaps/IndexMap/AHash ?
 
 ## configuration
-As of now all the configuration is done in `$XDG_CONFIG_HOME`, consisting of three folders: 
+As of now all the configuration is done in `$XDG_CONFIG_HOME`, consisting of two folders: 
 1. `layouts`: key map and layout configuration, defined in `*.layout.yaml`;
-2. `tables`: table method for table-lookup (requires a complementary layout file), defined in `*.dict.yaml`;
-3. `modes`: the glue holding the pieces together, contains global hot keys defining relationships between different methods, defined in `*mode.yaml`.
+2. `tables`: tables for table-lookup (still requires a layout file), defined in `*.dict.yaml`;
