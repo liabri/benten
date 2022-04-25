@@ -78,9 +78,10 @@ where D: Deserializer<'de> {
             LayoutKind::Layout => { out.insert(value.id.to_string(), Box::new(LayoutMethod::from(value))); },
             LayoutKind::Table => {
                 let value_name = value.id.to_string();
-                if let Ok(table_method) = TableMethod::try_from(value) {
-                    out.insert(value_name, Box::new(table_method));
-                }
+                out.insert(value_name, Box::new(TableMethod::try_from(value).unwrap()));
+                // if let Ok(table_method) = TableMethod::try_from(value) {
+                //     out.insert(value_name, Box::new(table_method));
+                // }
             },
             LayoutKind::Hangeul => {}
         }
