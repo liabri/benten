@@ -22,8 +22,9 @@ impl BentenEngine {
     pub fn on_key_press(&mut self, key_code: u16) -> BentenResponse {
         let rep = self.state.methods.get_mut(&self.state.current_method).unwrap().on_key_press(key_code);
         if let BentenResponse::Function(ref function) = rep {
-            return BentenResponse::Commit("d".to_string());
-            self.exec_function(function);
+            if let Some(response) = self.exec_function(function) {
+                return response;
+            }
         }
 
         return rep;
@@ -42,12 +43,16 @@ impl BentenEngine {
         self.state = State::new(name, &self.cfg.dir).unwrap();
     }
 
-    pub fn exec_function(&mut self, function: &Function) {
+    pub fn exec_function(&mut self, function: &Function) -> Option<BentenResponse> {
         match function {
-            Function::ChangeMethodTo(m) => {
+            Function::ChangeMethodTo(m) => self.state.current_method = m.to_string(),
+            Function::CommitThenChangeMethodTo(v, m) => {
                 self.state.current_method = m.to_string();
-            }
+                return Some(BentenResponse::Commit(v.to_string()));
+            },            
         }  
+
+        None
     }
 
     pub fn reset(&mut self) {
@@ -95,5 +100,6 @@ impl Default for BentenConfig {
 use serde::Deserialize;
 #[derive(Debug, PartialEq, Deserialize)]
 pub enum Function {
-    ChangeMethodTo(String)
+    ChangeMethodTo(String),
+    CommitThenChangeMethodTo(String, String)
 }

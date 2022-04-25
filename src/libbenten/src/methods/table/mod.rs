@@ -4,9 +4,8 @@ pub use parser::*;
 use std::collections::HashSet;
 use crate::methods::GenericMethodTrait;
 use crate::methods::layout::{ LayoutMethodTrait, LayoutHelper, parser::* };
-use crate::BentenResponse;
 use std::path::Path;
-use crate::BentenError;
+use crate::{ BentenError, BentenResponse, Function };
 
 pub struct TableMethod {
 	/// Layout variables
@@ -77,12 +76,24 @@ impl GenericMethodTrait for TableMethod {
 
         let mut commit = false;
     	match self.calculate_special_key(&key_code).as_deref() {
-    		Some("commit") => commit = true,
-    		Some("backspace") => { self.key_sequence.pop(); },
-    		Some("next") => self.index = self.index+1,
-    		Some("prev") => self.index = self.index-1,
+    		Some("COMMIT") => commit = true,
+    		Some("BACKSPACE") => { self.key_sequence.pop(); },
+    		Some("NEXT") => self.index = self.index+1,
+    		Some("PREV") => self.index = self.index-1,
     		_ => {},
     	}
+
+        let mut changemethodto = String::new();
+        if let Some(bindings) = &self.layout().bindings {
+            if let Some(functions) = bindings.get(&key_code) {
+                for function in functions {
+                    match function {
+                        Some(Function::ChangeMethodTo(m)) => changemethodto = m.to_string(),
+                        _ => {},
+                    }
+                }
+            }
+        }
 
     	if let Some(c) = self.calculate_char(&key_code) {
     		self.key_sequence.push_str(&c);
@@ -90,6 +101,10 @@ impl GenericMethodTrait for TableMethod {
 
         if let Some(value) = self.calculate_char_dict() {
             if commit {
+                if !changemethodto.is_empty() {
+                    return BentenResponse::Function(Function::CommitThenChangeMethodTo(value, changemethodto))
+                }
+
                 return BentenResponse::Commit(value)
             } else {
                 return BentenResponse::Suggest(value)
