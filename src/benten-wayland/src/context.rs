@@ -134,6 +134,7 @@ impl BentenContext {
                         KeyState::Pressed => {
                             match self.engine.on_key_press((key + 8) as u16) {
                                 BentenResponse::Empty => return,
+                                BentenResponse::Function(_) => return,
                                 BentenResponse::Commit(s) => { 
                                     self.im.commit_string(s);
                                     self.im.set_preedit_string(String::new(), -1, -1);
