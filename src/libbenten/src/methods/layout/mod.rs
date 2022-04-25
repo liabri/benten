@@ -1,7 +1,7 @@
 pub mod parser;
 pub use parser::*;
 
-use crate::{ BentenResponse, BentenError };
+use crate::{ BentenResponse, BentenError, Function };
 use crate::methods::GenericMethodTrait;
 use std::collections::HashSet;
 use std::path::Path;
@@ -45,6 +45,16 @@ impl GenericMethodTrait for LayoutMethod {
         let value = self.calculate_char(&key_code);
 
         // Check for bindings
+        if let Some(bindings) = &self.layout().bindings {
+            if let Some(functions) = bindings.get(&key_code) {
+                for function in functions {
+                    match function {
+                        Some(Function::ChangeMethodTo(m)) => return BentenResponse::Function(Function::ChangeMethodTo(m.to_string())),
+                        _ => {},
+                    }
+                }
+            }
+        }
 
         if let Some(value) = value {
             BentenResponse::Commit(value)

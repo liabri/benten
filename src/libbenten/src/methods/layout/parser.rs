@@ -4,7 +4,7 @@ use std::io::BufReader;
 use std::path::Path;
 use std::collections::{ HashMap, HashSet };
 
-use crate::BentenError;
+use crate::{ Function, BentenError };
 
 #[derive(Deserialize)]
 pub struct Layout {
@@ -48,11 +48,6 @@ pub enum ModifierKind {
     Set,
     Lock,
     Latch
-}
-
-#[derive(Debug, PartialEq, Deserialize)]
-pub enum Function {
-    ChangeMethodTo(String)
 }
 
 impl Layout {
