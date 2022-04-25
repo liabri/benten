@@ -20,7 +20,7 @@ fn han() {
         (18, BentenResponse::Suggest(String::from("日"))),
         (65, BentenResponse::Commit(String::from("日"))),
         (25, BentenResponse::Commit(String::from("く"))),
-        (65, BentenResponse::Null)
+        (65, BentenResponse::Undefined)
     ])
 }
 

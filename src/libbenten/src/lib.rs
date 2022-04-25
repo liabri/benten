@@ -20,22 +20,40 @@ impl BentenEngine {
     }
 
     pub fn on_key_press(&mut self, key_code: u16) -> BentenResponse {
-        self.state.methods.get_mut(&self.state.current_method)
-            .unwrap().on_key_press(key_code)
+        let rep = self.state.methods.get_mut(&self.state.current_method).unwrap().on_key_press(key_code);
+        if let BentenResponse::Function(ref function) = rep {
+            return BentenResponse::Commit("d".to_string());
+            self.exec_function(function);
+        }
+
+        return rep;
     }
 
     pub fn on_key_release(&mut self, key_code: u16) -> BentenResponse {
-        self.state.methods.get_mut(&self.state.current_method)
-            .unwrap().on_key_release(key_code)
+        let rep = self.state.methods.get_mut(&self.state.current_method).unwrap().on_key_release(key_code);
+        if let BentenResponse::Function(ref function) = rep {
+            self.exec_function(function);
+        }
+
+        return rep;
     }
 
     pub fn set_layout(&mut self, name: &str) {
         self.state = State::new(name, &self.cfg.dir).unwrap();
     }
 
+    pub fn exec_function(&mut self, function: &Function) {
+        match function {
+            Function::ChangeMethodTo(m) => {
+                self.state.current_method = m.to_string();
+            }
+        }  
+    }
+
     pub fn reset(&mut self) {
         self.state.methods.get_mut(&self.state.current_method)
-            .unwrap().reset()    }
+            .unwrap().reset()    
+    }
 }
 
 #[derive(Debug, PartialEq)]
@@ -44,6 +62,7 @@ pub enum BentenResponse {
     Suggest(String),
     Undefined, //KeyCode is not defined
     Empty, //KeyCode found but didnt have anything to return, intentional (like special keys eg. Han key)
+    Function(Function)
 }
 
 #[derive(Error, Debug)]
@@ -70,4 +89,11 @@ impl Default for BentenConfig {
             id: "layout id was not defined".to_string()
         }
     }
+}
+
+
+use serde::Deserialize;
+#[derive(Debug, PartialEq, Deserialize)]
+pub enum Function {
+    ChangeMethodTo(String)
 }
