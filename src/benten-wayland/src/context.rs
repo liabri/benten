@@ -136,6 +136,7 @@ impl BentenContext {
                                 BentenResponse::Empty => return,
                                 BentenResponse::Function(_) => return,
                                 BentenResponse::Commit(s) => { 
+                                    self.engine.reset();
                                     self.im.commit_string(s);
                                     self.im.set_preedit_string(String::new(), -1, -1);
                                 },

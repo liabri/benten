@@ -56,8 +56,9 @@ impl BentenEngine {
     }
 
     pub fn reset(&mut self) {
-        self.state.methods.get_mut(&self.state.current_method)
-            .unwrap().reset()    
+        for method in self.state.methods.values_mut() {
+            method.reset();
+        }
     }
 }
 
