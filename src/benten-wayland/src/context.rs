@@ -133,8 +133,25 @@ impl BentenContext {
                     match state {
                         KeyState::Pressed => {
                             match self.engine.on_key_press((key + 8) as u16) {
-                                BentenResponse::Empty => return,
-                                BentenResponse::Function(_) => return,
+                                BentenResponse::Empty => {
+                                    self.im.set_preedit_string(String::new(), -1, -1);
+                                    // return
+                                },
+
+                                BentenResponse::Function(f) => {
+                                    match f {
+                                        _ => self.im.set_preedit_string(String::new(), -1, -1),
+                                    }
+
+                                    // return
+                                },
+
+                                BentenResponse::Undefined => {
+                                    self.vk.key(time, key, state as _);
+                                    self.im.set_preedit_string(String::new(), -1, -1);
+                                    return
+                                },
+
                                 BentenResponse::Commit(s) => { 
                                     self.engine.reset();
                                     self.im.commit_string(s);
@@ -144,11 +161,6 @@ impl BentenContext {
                                 BentenResponse::Suggest(s) => {
                                     let len = s.len();
                                     self.im.set_preedit_string(s, 0, len as _);
-                                },
-
-                                BentenResponse::Undefined => {
-                                    self.vk.key(time, key, state as _);
-                                    return;
                                 }
                             }
 
