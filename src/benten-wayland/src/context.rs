@@ -135,15 +135,12 @@ impl BentenContext {
                             match self.engine.on_key_press((key + 8) as u16) {
                                 BentenResponse::Empty => {
                                     self.im.set_preedit_string(String::new(), -1, -1);
-                                    // return
                                 },
 
                                 BentenResponse::Function(f) => {
                                     match f {
                                         _ => self.im.set_preedit_string(String::new(), -1, -1),
                                     }
-
-                                    // return
                                 },
 
                                 BentenResponse::Undefined => {
