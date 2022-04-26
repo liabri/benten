@@ -6,11 +6,6 @@ use benten::{ Function, BentenResponse };
 define_layout_test!("japanese");
 
 #[test]
-fn kana() {
-    todo!()
-}
-
-#[test]
 fn kana_level_1() {
     test_input(&[
         (21, BentenResponse::Commit("み".to_string())),
@@ -103,7 +98,7 @@ fn cangjie_backspace_key() {
         (22, BentenResponse::Suggest(String::from("手"))),
         (22, BentenResponse::Function(Function::ChangeMethodTo("kana".to_string()))),
         // //swap back to kana when empty
-        // (25, BentenResponse::Commit(String::from("く"))),
+        (25, BentenResponse::Commit(String::from("く"))),
     ])
 }
 
