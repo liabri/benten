@@ -49,7 +49,8 @@ impl BentenEngine {
             Function::CommitThenChangeMethodTo(v, m) => {
                 self.state.current_method = m.to_string();
                 return Some(BentenResponse::Commit(v.to_string()));
-            },            
+            },  
+            _ => {}
         }  
 
         None
@@ -102,5 +103,6 @@ use serde::Deserialize;
 #[derive(Debug, PartialEq, Deserialize)]
 pub enum Function {
     ChangeMethodTo(String),
-    CommitThenChangeMethodTo(String, String)
+    CommitThenChangeMethodTo(String, String),
+    IfEmptyChangeMethodTo(String),
 }

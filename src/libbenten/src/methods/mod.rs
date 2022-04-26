@@ -2,7 +2,7 @@ pub mod layout;
 use layout::{ Layout, LayoutMethod, LayoutKind };
 
 pub mod table;
-use table::{ Table, TableMethod };
+use table::TableMethod;
 
 use crate::{ BentenResponse, BentenError };
 use serde::{ Deserialize, Deserializer };

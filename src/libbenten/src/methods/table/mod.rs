@@ -84,11 +84,17 @@ impl GenericMethodTrait for TableMethod {
     	}
 
         let mut changemethodto = String::new();
+        let key_sequence_empty = self.key_sequence.is_empty();
         if let Some(bindings) = &self.layout().bindings {
             if let Some(functions) = bindings.get(&key_code) {
                 for function in functions {
                     match function {
                         Some(Function::ChangeMethodTo(m)) => changemethodto = m.to_string(),
+                        Some(Function::IfEmptyChangeMethodTo(m)) => {
+                            if key_sequence_empty {
+                                changemethodto = m.to_string()
+                            } 
+                        }, 
                         _ => {},
                     }
                 }
@@ -99,10 +105,18 @@ impl GenericMethodTrait for TableMethod {
     		self.key_sequence.push_str(&c);
     	}
 
+
+        //change method when key sequence is empty on backspace
+        if !changemethodto.is_empty() && !commit {
+           return BentenResponse::Function(Function::ChangeMethodTo(changemethodto))
+        }
+
         if let Some(value) = self.calculate_char_dict() {
             if commit {
+                self.reset();
+                
                 if !changemethodto.is_empty() {
-                    return BentenResponse::Function(Function::CommitThenChangeMethodTo(value, changemethodto))
+                   return BentenResponse::Function(Function::CommitThenChangeMethodTo(value, changemethodto))
                 }
 
                 return BentenResponse::Commit(value)
@@ -110,7 +124,8 @@ impl GenericMethodTrait for TableMethod {
                 return BentenResponse::Suggest(value)
             }
         } else {
-            return BentenResponse::Undefined
+            self.reset();
+            return BentenResponse::Empty
         }
     }
 
@@ -153,28 +168,30 @@ impl LayoutMethodTrait for TableMethod {}
 impl TableMethod {
     pub fn calculate_char_dict(&mut self) -> Option<String> {
         //Tolerate index
-        if self.index>=self.relative_entries.len() {
-            self.index = 0
-        }
+        if !self.key_sequence.is_empty() {
+            if self.index>=self.relative_entries.len() {
+                self.index = 0
+            }
 
-        // let key_sequence: &str = &self.key_sequence;
+            // let key_sequence: &str = &self.key_sequence;
 
-        //If relative entries is not yet made, make it
-        // if key_sequence.len()==1 { 
-        self.relative_entries.clear();
+            //If relative entries is not yet made, make it
+            // if key_sequence.len()==1 { 
+            self.relative_entries.clear();
             for entry in &self.table.entries {
                 if entry.sequence.starts_with(&self.key_sequence) {
                     self.relative_entries.push(entry.clone());
                 }
             }
-  //    } else {
-  //        //Filter by remove non-matching entries from relative_entries
-  //        self.relative_entries.retain(|entry| entry.sequence.starts_with(&*key_sequence));
-        // }
+      //    } else {
+      //        //Filter by remove non-matching entries from relative_entries
+      //        self.relative_entries.retain(|entry| entry.sequence.starts_with(&*key_sequence));
+            // }
 
-        //Get candidate
-        if let Some(entry) = self.relative_entries.get(self.index).map(|x| x.to_owned()) {
-            return Some(entry.character.to_string());
+            //Get candidate
+            if let Some(entry) = self.relative_entries.get(self.index).map(|x| x.to_owned()) {
+                return Some(entry.character.to_string());
+            }
         }
 
         None
