@@ -69,7 +69,7 @@ fn kana_level_6() {
 fn cangjie_commit_key() {
     test_input(&[
         (47, BentenResponse::Function(Function::ChangeMethodTo("cangjie5".to_string()))),
-        (18, BentenResponse::Suggest(String::from("日"))),
+        (38, BentenResponse::Suggest(String::from("日"))),
         (65, BentenResponse::Commit(String::from("日"))),
 
         //commit then change method to kana
@@ -82,7 +82,7 @@ fn cangjie_commit_key() {
 fn cangjie_next_prev_key() {
     test_input(&[
         (47, BentenResponse::Function(Function::ChangeMethodTo("cangjie5".to_string()))),
-        (18, BentenResponse::Suggest(String::from("日"))),
+        (38, BentenResponse::Suggest(String::from("日"))),
         (23, BentenResponse::Suggest(String::from("曰"))),
         (65, BentenResponse::Commit(String::from("曰")))
     ])
@@ -115,7 +115,7 @@ fn cangjie_on_no_result() {
         (24, BentenResponse::Suggest(String::from("抙"))),
         (24, BentenResponse::Suggest(String::from("掱"))),
 
-        (24, BentenResponse::Undefined),
+        (24, BentenResponse::Empty),
         //on fail restart sequence
         (24, BentenResponse::Suggest(String::from("手"))),
         (24, BentenResponse::Suggest(String::from("抙"))),
